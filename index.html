@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#e7650d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MijnApp">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#4a6fa5">
+<meta name="author" content="Bart Bracqué">
+<title>Floor Heating Calculator PRO - PE-RT</title>
+<style>
+*{box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+body{background:#f5f7fa;color:#333;line-height:1.6;margin:0;padding:20px;max-width:1400px;margin:0 auto}
+.container{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+@media(max-width:900px){.container{grid-template-columns:1fr}}
+header{grid-column:1/-1;text-align:center;margin-bottom:30px;padding-bottom:20px;border-bottom:2px solid #4a6fa5;position:relative}
+h1{color:#2c3e50;margin-bottom:10px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px}
+.pro-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #8e44ad, #9b59b6);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 5px rgba(142, 68, 173, 0.4);
+}
+.lang-switcher{position:absolute;top:0;right:0}
+.lang-switcher select{padding:8px 12px;border-radius:6px;border:1px solid #ddd;font-size:14px;background:white}
+.calculator,.results{background:white;border-radius:10px;box-shadow:0 5px 15px rgba(0,0,0,.08);padding:25px}
+.calculator h2,.results h2{color:#4a6fa5;margin-top:0;padding-bottom:15px;border-bottom:1px solid #eee}
+.input-section{margin-bottom:25px}
+.section-title{font-size:18px;font-weight:600;color:#444;margin-bottom:15px;padding-left:8px;border-left:4px solid #4a6fa5}
+.input-group{margin-bottom:20px}
+label{display:block;margin-bottom:8px;font-weight:600;color:#555;font-size:14px}
+select,input[type="number"],input[type="text"]{width:100%;padding:12px 15px;border:1px solid #ddd;border-radius:6px;font-size:16px;transition:border .3s}
+select:focus,input[type="number"]:focus,input[type="text"]:focus{outline:none;border-color:#4a6fa5;box-shadow:0 0 0 2px rgba(74,111,165,.2)}
+.hoh-options{display:flex;gap:10px;margin-top:10px}
+.hoh-option{flex:1;text-align:center;padding:15px 5px;background:#f8f9fa;border-radius:6px;cursor:pointer;border:2px solid #e9ecef;transition:all .3s}
+.hoh-option:hover{background:#edf2f9}
+.hoh-option.active{border-color:#4a6fa5;background:#e8eff9;font-weight:bold}
+.hoh-option .value{font-size:18px;font-weight:bold;color:#4a6fa5;margin-bottom:5px}
+.hoh-option .desc{font-size:13px;color:#666}
+.note{font-size:14px;color:#666;font-style:italic;margin-top:5px}
+.temp-row{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.delta-display{background:#e8f4fd;border:2px solid #4a6fa5;border-radius:6px;padding:10px 15px;margin-top:10px;font-size:15px}
+.delta-display strong{color:#4a6fa5;font-size:18px}
+.diameter-options{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:600px){.diameter-options{grid-template-columns:repeat(2,1fr)}}
+.diameter-option{text-align:center;padding:12px 5px;background:#f8f9fa;border:2px solid #e9ecef;border-radius:6px;cursor:pointer;transition:all .3s;position:relative}
+.diameter-option:hover{background:#edf2f9}
+.diameter-option.active{border-color:#4a6fa5;background:#e8eff9;font-weight:bold}
+.diameter-option .value{font-size:17px;font-weight:bold;color:#4a6fa5}
+.diameter-option .desc{font-size:11px;color:#666;margin-top:3px}
+.diameter-option .komo{position:absolute;top:3px;right:3px;background:#2c8c6e;color:white;font-size:9px;padding:1px 4px;border-radius:4px;font-weight:600}
+.calculate-btn,.action-btn{background:#4a6fa5;color:white;border:none;padding:15px 30px;font-size:18px;border-radius:6px;cursor:pointer;width:100%;transition:background .3s;font-weight:600;letter-spacing:.5px;margin-top:10px}
+.action-btn.add-btn{background:#2c8c6e}
+.action-btn.edit-btn{background:#4a6fa5}
+.action-btn.delete-btn{background:#dc3545}
+.action-btn.pdf-btn{background:#8e44ad}
+.action-btn:hover{opacity:.9}
+.manual-circles-section{margin-top:30px;border-top:2px solid #eee;padding-top:20px}
+.circles-list{max-height:400px;overflow-y:auto;margin:20px 0;border:1px solid #eee;border-radius:8px;padding:15px}
+.circle-item{background:#f8f9fa;padding:15px;border-radius:8px;margin-bottom:15px;border-left:4px solid #4a6fa5;display:flex;justify-content:space-between;align-items:center}
+.circle-item.invalid{border-left-color:#dc3545;background:#fff5f5}
+.circle-info{flex:1}
+.circle-number{font-weight:bold;color:#2c3e50;font-size:18px;margin-bottom:5px}
+.circle-details{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;font-size:14px}
+.circle-details span{background:white;padding:5px 10px;border-radius:4px;display:inline-block;margin-right:10px;margin-bottom:5px}
+.circle-actions{display:flex;gap:10px}
+.circle-form{background:#f0f7ff;padding:20px;border-radius:8px;margin-top:20px}
+.form-group{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px}
+.form-actions{display:flex;gap:10px;margin-top:20px}
+.form-actions button{flex:1}
+.result-item{background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;border-left:4px solid #4a6fa5}
+.result-item h3{margin-top:0;color:#2c3e50;font-size:18px}
+.result-value{font-size:28px;font-weight:bold;color:#4a6fa5;margin:10px 0}
+.result-value.kw{color:#8e44ad}
+.result-details{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px}
+.detail-box{background:white;padding:15px;border-radius:6px;box-shadow:0 2px 5px rgba(0,0,0,.05)}
+.detail-box .label{font-size:14px;color:#666;margin-bottom:5px}
+.detail-box .value{font-size:18px;font-weight:600;color:#333}
+.circles-container{margin-top:25px}
+.circle{background:#f8f9fa;border-radius:8px;padding:20px;margin-bottom:15px;border:1px solid #e9ecef}
+.circle-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.circle-title{font-weight:bold;color:#2c3e50}
+.circle-length{color:#4a6fa5;font-weight:bold}
+.circle-length.invalid{color:#dc3545}
+.warning{background:#fff3cd;border:1px solid #ffeaa7;color:#856404;padding:15px;border-radius:6px;margin-top:20px;font-size:14px}
+.warning.danger{background:#f8d7da;border-color:#f5c6cb;color:#721c24}
+.pump-box{background:#e8f4fd;border:2px solid #4a6fa5;border-radius:8px;padding:20px;margin-top:20px}
+.pump-box h3{margin-top:0;color:#2c3e50}
+.footer{grid-column:1/-1;text-align:center;margin-top:30px;padding-top:20px;border-top:1px solid #ddd;color:#666;font-size:14px}
+.hidden{display:none}
+.empty-state{text-align:center;padding:40px 20px;color:#666}
+.empty-state h3{color:#999;margin-bottom:10px}
+.tab-selector{display:flex;gap:5px;margin-bottom:20px;background:#f8f9fa;padding:5px;border-radius:8px}
+.tab-btn{flex:1;padding:10px;border:none;background:transparent;border-radius:6px;font-weight:600;cursor:pointer;transition:all .3s;text-align:center}
+.tab-btn.active{background:white;box-shadow:0 2px 5px rgba(0,0,0,.1)}
+.badge{display:inline-block;background:#4a6fa5;color:white;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600;margin-left:6px}
+.badge.ok{background:#2c8c6e}
+.badge.warn{background:#dc3545}
+.pipe-specs{margin-top:15px;border:1px solid #e0e6ee;border-radius:8px;overflow:hidden}
+.pipe-specs-header{background:#f0f4f9;padding:10px 15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;color:#2c3e50;user-select:none}
+.pipe-specs-header:hover{background:#e4ecf5}
+.pipe-specs-header .arrow{transition:transform .3s}
+.pipe-specs-header.open .arrow{transform:rotate(180deg)}
+.pipe-specs-body{padding:12px 15px;display:none;background:white}
+.pipe-specs-body.open{display:block}
+.spec-table{width:100%;border-collapse:collapse;font-size:13px}
+.spec-table td{padding:5px 4px;border-bottom:1px solid #f0f0f0}
+.spec-table td:first-child{color:#555;width:60%}
+.spec-table td:last-child{font-weight:600;text-align:right;color:#2c3e50}
+.spec-note{font-size:12px;color:#777;margin-top:8px;font-style:italic}
+#pdfReport{display:none}
+@media print{
+  body *{visibility:hidden}
+  #pdfReport,#pdfReport *{visibility:visible}
+  #pdfReport{display:block!important;position:absolute;left:0;top:0;width:100%;padding:20px;background:white;color:#000;font-family:'Segoe UI',Arial,sans-serif;font-size:11pt}
+  @page{margin:15mm}
+  .pdf-header{border-bottom:2px solid #4a6fa5;padding-bottom:10px;margin-bottom:15px}
+  .pdf-header h1{color:#2c3e50;font-size:20pt;margin:0 0 5px 0}
+  .pdf-header .meta{color:#555;font-size:10pt}
+  .pdf-kw-box{background:#f0e6f6;border:2px solid #8e44ad;border-radius:8px;padding:15px 20px;margin:15px 0;text-align:center}
+  .pdf-kw-box .label{font-size:12pt;color:#555}
+  .pdf-kw-box .kw{font-size:28pt;font-weight:bold;color:#8e44ad;line-height:1.1}
+  .pdf-kw-box .sub{font-size:10pt;color:#666}
+  .pdf-section{margin:15px 0}
+  .pdf-section h2{color:#4a6fa5;font-size:13pt;border-bottom:1px solid #ccc;padding-bottom:4px;margin-bottom:8px}
+  .pdf-summary{width:100%;border-collapse:collapse;margin:8px 0}
+  .pdf-summary td{padding:4px 8px;border-bottom:1px solid #eee}
+  .pdf-summary td:first-child{color:#555;width:55%}
+  .pdf-summary td:last-child{font-weight:bold;text-align:right}
+  .pdf-table{width:100%;border-collapse:collapse;margin:8px 0;font-size:9.5pt}
+  .pdf-table th{background:#4a6fa5;color:white;padding:6px 4px;text-align:left}
+  .pdf-table td{padding:5px 4px;border-bottom:1px solid #ddd}
+  .pdf-table tr:nth-child(even) td{background:#f8f9fa}
+  .pdf-table .num{text-align:right}
+  .pdf-warning{background:#fff3cd;border:1px solid #ffeaa7;color:#856404;padding:8px 12px;border-radius:6px;margin:8px 0;font-size:10pt}
+  .pdf-warning.danger{background:#f8d7da;border-color:#f5c6cb;color:#721c24}
+  .pdf-pump{background:#e8f4fd;border:2px solid #4a6fa5;border-radius:8px;padding:12px 15px;margin:10px 0}
+  .pdf-pump h2{margin-top:0}
+  .pdf-footer{margin-top:20px;padding-top:10px;border-top:1px solid #ccc;font-size:9pt;color:#666;text-align:center}
+  .pdf-badge{display:inline-block;padding:1px 6px;border-radius:8px;font-size:8pt;color:white;background:#2c8c6e}
+  .pdf-badge.warn{background:#dc3545}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="lang-switcher">
+    <select id="langSwitcher" onchange="setLang(this.value)">
+      <option value="en">🇬🇧 English</option>
+      <option value="nl">🇳🇱 Nederlands</option>
+      <option value="fr">🇫🇷 Français</option>
+      <option value="de">🇩🇪 Deutsch</option>
+      <option value="zh">🇨🇳 中文</option>
+      <option value="es">🇪🇸 Español</option>
+      <option value="it">🇮🇹 Italiano</option>
+      <option value="la">🏛 Latina</option>
+      <option value="sv">🇸🇪 Svenska</option>
+      <option value="no">🇳🇴 Norsk</option>
+      <option value="uk">🇺🇦 Українська</option>
+      <option value="ru">🇷🇺 Русский</option>
+      <option value="ja">🇯🇵 日本語</option>
+    </select>
+  </div>
+  <h1><span data-i18n="appTitle">Floor Heating Calculator</span> <span class="pro-badge">PRO</span></h1>
+  <p data-i18n="appSubtitle">PE-RT 10/12/14/16 mm · free regime · pressure drop · pump advice</p>
+</header>
+
+<div class="container">
+  <div class="calculator">
+    
+    <!-- PROJECT & INSTALLATEUR GEGEVENS -->
+    <div class="input-section">
+      <div class="section-title" data-i18n="projectDetails">Project & Installer Details</div>
+      <div class="form-group">
+        <div class="input-group">
+          <label for="installerName" data-i18n="installerName">Installer Name / Company</label>
+          <input type="text" id="installerName" placeholder="e.g. Heating Solutions BV">
+        </div>
+        <div class="input-group">
+          <label for="installerAddress" data-i18n="address">Address</label>
+          <input type="text" id="installerAddress" placeholder="Street + Number">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="input-group">
+          <label for="installerCity" data-i18n="postalCity">Postal Code & City</label>
+          <input type="text" id="installerCity" placeholder="1234 AB, City">
+        </div>
+        <div class="input-group">
+          <label for="installerCountry" data-i18n="country">Country</label>
+          <input type="text" id="installerCountry" placeholder="Country">
+        </div>
+      </div>
+      
+      <div class="form-group" style="margin-top:20px; border-top:1px dashed #ccc; padding-top:20px;">
+        <div class="input-group">
+          <label for="customerName" data-i18n="customerName">Customer / Project Name</label>
+          <input type="text" id="customerName" placeholder="e.g. Mr. Johnson">
+        </div>
+        <div class="input-group">
+          <label for="customerAddress" data-i18n="address">Address</label>
+          <input type="text" id="customerAddress" placeholder="Street + Number">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="input-group">
+          <label for="customerCity" data-i18n="postalCity">Postal Code & City</label>
+          <input type="text" id="customerCity" placeholder="1234 AB, City">
+        </div>
+        <div class="input-group">
+          <label for="customerCountry" data-i18n="country">Country</label>
+          <input type="text" id="customerCountry" placeholder="Country">
+        </div>
+      </div>
+    </div>
+
+    <h2 data-i18n="circuitManage">Circuit Management</h2>
+    <div class="tab-selector">
+      <button class="tab-btn active" data-tab="auto" data-i18n="auto">Automatic</button>
+      <button class="tab-btn" data-tab="manual" data-i18n="manual">Manual</button>
+    </div>
+
+    <div id="auto-mode-section" class="auto-mode-section">
+      <div class="input-section">
+        <div class="section-title" data-i18n="roomParams">Room parameters</div>
+        <div class="input-group">
+          <label for="roomArea" data-i18n="roomArea">Room area (m²)</label>
+          <input type="number" id="roomArea" min="1" max="500" step="0.5" value="30">
+        </div>
+        <div class="input-group">
+          <label data-i18n="hohDistance">Pipe spacing</label>
+          <div class="hoh-options">
+            <div class="hoh-option active" data-value="10"><div class="value">10 cm</div><div class="desc" data-i18n="mainHeating">Primary heating</div></div>
+            <div class="hoh-option" data-value="15"><div class="value">15 cm</div><div class="desc" data-i18n="secondaryHeating">Secondary heating</div></div>
+            <div class="hoh-option" data-value="18"><div class="value">18 cm</div><div class="desc" data-i18n="comfortHeating">Comfort / low demand</div></div>
+          </div>
+          <input type="hidden" id="hohDistance" value="10">
+        </div>
+      </div>
+
+      <div class="input-section">
+        <div class="section-title" data-i18n="pipeDiameter">Pipe diameter (PE-RT)</div>
+        <div class="diameter-options" id="autoDiameterOptions">
+          <div class="diameter-option active" data-value="10"><div class="value">10 mm</div><div class="desc">10 × 1.3</div></div>
+          <div class="diameter-option" data-value="12"><div class="value">12 mm</div><div class="desc">12 × 2.0</div></div>
+          <div class="diameter-option" data-value="14"><div class="value">14 mm</div><div class="desc">14 × 2.0</div><div class="komo">KOMO</div></div>
+          <div class="diameter-option" data-value="16"><div class="value">16 mm</div><div class="desc">16 × 2.0</div><div class="komo">KOMO</div></div>
+        </div>
+        <input type="hidden" id="autoDiameter" value="10">
+        <div class="pipe-specs" id="autoPipeSpecs">
+          <div class="pipe-specs-header" onclick="toggleSpecs('auto')">
+            <span data-i18n="peRtSpecs">PE-RT properties</span>
+            <span class="arrow">▼</span>
+          </div>
+          <div class="pipe-specs-body" id="autoSpecsBody"></div>
+        </div>
+      </div>
+
+      <div class="input-section">
+        <div class="section-title" data-i18n="waterRegime">Water regime</div>
+        <div class="temp-row">
+          <div class="input-group">
+            <label for="autoSupplyTemp" data-i18n="supplyTemp">Supply temperature (°C)</label>
+            <input type="number" id="autoSupplyTemp" min="20" max="60" step="0.5" value="40">
+          </div>
+          <div class="input-group">
+            <label for="autoReturnTemp" data-i18n="returnTemp">Return temperature (°C)</label>
+            <input type="number" id="autoReturnTemp" min="15" max="55" step="0.5" value="35">
+          </div>
+        </div>
+        <div class="delta-display" id="autoDeltaDisplay"></div>
+      </div>
+    </div>
+
+    <div id="manual-mode-section" class="manual-mode-section hidden">
+      <div class="input-section">
+        <div class="section-title" data-i18n="globalParams">Global parameters</div>
+        <div class="input-group">
+          <label data-i18n="pipeDiameter">Pipe diameter (PE-RT)</label>
+          <div class="diameter-options" id="manualDiameterOptions">
+            <div class="diameter-option active" data-value="10"><div class="value">10 mm</div><div class="desc">10 × 1.3</div></div>
+            <div class="diameter-option" data-value="12"><div class="value">12 mm</div><div class="desc">12 × 2.0</div></div>
+            <div class="diameter-option" data-value="14"><div class="value">14 mm</div><div class="desc">14 × 2.0</div><div class="komo">KOMO</div></div>
+            <div class="diameter-option" data-value="16"><div class="value">16 mm</div><div class="desc">16 × 2.0</div><div class="komo">KOMO</div></div>
+          </div>
+          <input type="hidden" id="manualDiameter" value="10">
+          <div class="pipe-specs" id="manualPipeSpecs">
+            <div class="pipe-specs-header" onclick="toggleSpecs('manual')">
+              <span data-i18n="peRtSpecs">PE-RT properties</span>
+              <span class="arrow">▼</span>
+            </div>
+            <div class="pipe-specs-body" id="manualSpecsBody"></div>
+          </div>
+        </div>
+        <div class="temp-row">
+          <div class="input-group">
+            <label for="manualSupplyTemp" data-i18n="supplyTemp">Supply temperature (°C)</label>
+            <input type="number" id="manualSupplyTemp" min="20" max="60" step="0.5" value="40">
+          </div>
+          <div class="input-group">
+            <label for="manualReturnTemp" data-i18n="returnTemp">Return temperature (°C)</label>
+            <input type="number" id="manualReturnTemp" min="15" max="55" step="0.5" value="35">
+          </div>
+        </div>
+        <div class="delta-display" id="manualDeltaDisplay"></div>
+      </div>
+
+      <div class="manual-circles-section">
+        <div class="section-title" data-i18n="addManualCircuits">Add manual circuits</div>
+        <div class="circle-form">
+          <div class="form-group">
+            <div class="input-group">
+              <label for="circleName" data-i18n="circuitName">Circuit name</label>
+              <input type="text" id="circleName" value="Circuit 1">
+            </div>
+            <div class="input-group">
+              <label for="circleLength" data-i18n="pipeLength85">Pipe length (m) 85–110</label>
+              <input type="number" id="circleLength" min="85" max="110" value="100">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <label for="circleHoh" data-i18n="hohDistance">Pipe spacing (cm)</label>
+              <select id="circleHoh">
+                <option value="10">10 cm</option>
+                <option value="15" selected>15 cm</option>
+                <option value="18">18 cm</option>
+                <option value="custom" data-i18n="custom">Custom</option>
+              </select>
+            </div>
+            <div class="input-group" id="customHohContainer" style="display:none">
+              <label for="customHoh" data-i18n="customHoh">Custom spacing (cm)</label>
+              <input type="number" id="customHoh" min="5" max="30" value="15">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="input-group">
+              <label for="circleArea" data-i18n="areaM2">Area (m²)</label>
+              <input type="number" id="circleArea" min="1" max="100" step="0.1" value="15">
+            </div>
+            <div class="input-group">
+              <label for="circlePower" data-i18n="powerW">Power (W)</label>
+              <input type="number" id="circlePower" min="1" max="5000" step="10" value="900">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="action-btn add-btn" id="addCircleBtn" data-i18n="addCircuit">Add circuit</button>
+            <button class="action-btn edit-btn" id="updateCircleBtn" style="display:none" data-i18n="updateCircuit">Update</button>
+            <button class="action-btn delete-btn" id="cancelEditBtn" style="display:none" data-i18n="cancel">Cancel</button>
+          </div>
+        </div>
+        <div class="circles-list" id="circlesList">
+          <div class="empty-state" id="emptyCirclesList">
+            <h3 data-i18n="noCircuits">No circuits added yet</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="calculate-btn" id="calculateBtn" data-i18n="calculate">Calculate total</button>
+    <div class="warning">
+      <strong data-i18n="warning">Warning:</strong>
+      <span data-i18n="warningText">Indicative values. For exact design: consult a certified installer.</span>
+    </div>
+  </div>
+
+  <div class="results">
+    <h2 data-i18n="results">Results</h2>
+    <div class="result-item">
+      <h3 data-i18n="totalPower">Total required power</h3>
+      <div class="result-value kw" id="totalPowerKw">0.00 kW</div>
+      <div class="result-value" id="totalPower" style="font-size:20px">0 W</div>
+      <div class="result-details">
+        <div class="detail-box"><div class="label" data-i18n="powerPerSqm">Power per m²</div><div class="value" id="powerPerSqm">0 W/m²</div></div>
+        <div class="detail-box"><div class="label" data-i18n="totalLength">Total pipe length</div><div class="value" id="totalPipeLength">0 m</div></div>
+      </div>
+    </div>
+    <div class="result-item">
+      <h3 data-i18n="waterAndPipe">Water regime & pipe</h3>
+      <div class="result-details">
+        <div class="detail-box"><div class="label" data-i18n="supplyReturn">Supply / return</div><div class="value" id="resSupplyReturn">— / — °C</div></div>
+        <div class="detail-box"><div class="label" data-i18n="deltaT">ΔT</div><div class="value" id="resDeltaT">— K</div></div>
+        <div class="detail-box"><div class="label" data-i18n="tGem">Avg. water temperature</div><div class="value" id="resTgem">— °C</div></div>
+        <div class="detail-box"><div class="label" data-i18n="pipeDiameterShort">Pipe diameter</div><div class="value" id="resDiameter">— mm</div></div>
+        <div class="detail-box"><div class="label" data-i18n="totalFlow">Total flow</div><div class="value" id="resTotalFlow">0 l/h</div></div>
+        <div class="detail-box"><div class="label" data-i18n="avgFlow">Flow per circuit (avg.)</div><div class="value" id="resAvgFlow">0 l/h</div></div>
+      </div>
+    </div>
+    <div class="result-item">
+      <h3 data-i18n="circuitsOverview">Circuits overview</h3>
+      <div class="result-value" id="numberOfCircles">0</div>
+      <div class="result-details">
+        <div class="detail-box"><div class="label" data-i18n="avgLength">Avg. length per circuit</div><div class="value" id="avgLengthPerCircle">0 m</div></div>
+        <div class="detail-box"><div class="label" data-i18n="totalArea">Total area</div><div class="value" id="totalArea">0 m²</div></div>
+      </div>
+    </div>
+    <div class="result-item">
+      <h3 data-i18n="pumpIndication">Pump & pressure drop</h3>
+      <div class="pump-box" id="pumpBox"><p data-i18n="calculateFirst">Calculate to see results.</p></div>
+    </div>
+    <div class="circles-container">
+      <h3 data-i18n="perCircuitDetails">Details per circuit</h3>
+      <div id="circlesDetails"><p data-i18n="calcFirst">Enter data and click calculate.</p></div>
+    </div>
+    <div class="result-item">
+      <h3 data-i18n="reportAndSave">Report & save</h3>
+      <button class="action-btn pdf-btn" id="pdfBtn" data-i18n="pdfReport">📄 Download PDF report</button>
+      <div class="result-details" style="margin-top:15px">
+        <button class="action-btn" id="exportBtn" style="background:#2c8c6e" data-i18n="exportJson">Export JSON</button>
+        <button class="action-btn" id="importBtn" style="background:#4a6fa5" data-i18n="importJson">Import JSON</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <p data-i18n="footerText">Based on NBN EN 1264. Indicative values.</p>
+  <p style="margin-top: 10px; font-size: 13px; color: #888;">© 2024 Bart Bracqué. All rights reserved.</p>
+</div>
+
+<!-- PDF RAPPORT -->
+<div id="pdfReport">
+  <div class="pdf-header">
+    <h1 id="pdfTitle">Floor Heating Report — PE-RT <span style="color:#8e44ad; font-size:14pt; font-weight:bold;">(PRO)</span></h1>
+    <div class="meta" id="pdfMeta">—</div>
+  </div>
+
+  <div class="pdf-section" id="pdfProjectSection">
+    <h2 data-i18n="projectDetails">Project & Installer Details</h2>
+    <table style="width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 10pt;">
+      <tr>
+        <td style="width: 50%; vertical-align: top; padding: 10px; border: 1px solid #ddd; background: #f9f9f9;">
+          <strong style="color: #4a6fa5;" data-i18n="installerDetails">Installer Details</strong><br><br>
+          <span id="pdfInstallerName">—</span><br>
+          <span id="pdfInstallerAddress">—</span><br>
+          <span id="pdfInstallerCity">—</span><br>
+          <span id="pdfInstallerCountry">—</span>
+        </td>
+        <td style="width: 50%; vertical-align: top; padding: 10px; border: 1px solid #ddd; background: #f9f9f9;">
+          <strong style="color: #4a6fa5;" data-i18n="customerDetails">Customer / Installation Address</strong><br><br>
+          <span id="pdfCustomerName">—</span><br>
+          <span id="pdfCustomerAddress">—</span><br>
+          <span id="pdfCustomerCity">—</span><br>
+          <span id="pdfCustomerCountry">—</span>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="pdf-kw-box">
+    <div class="label" data-i18n="totalInstalledPower">Total installed power</div>
+    <div class="kw" id="pdfKw">0.00 kW</div>
+    <div class="sub" id="pdfKwSub">0 W · 0 W/m² · 0 m²</div>
+  </div>
+  <div class="pdf-section">
+    <h2 data-i18n="installData">Installation data</h2>
+    <table class="pdf-summary">
+      <tr><td data-i18n="pipeDiameter">Pipe diameter (PE-RT)</td><td id="pdfDiameter">—</td></tr>
+      <tr><td data-i18n="supplyTemp">Supply temperature</td><td id="pdfSupply">—</td></tr>
+      <tr><td data-i18n="returnTemp">Return temperature</td><td id="pdfReturn">—</td></tr>
+      <tr><td data-i18n="deltaT">ΔT</td><td id="pdfDeltaT">—</td></tr>
+      <tr><td data-i18n="tGem">Avg. water temperature</td><td id="pdfTgem">—</td></tr>
+      <tr><td data-i18n="mode">Mode</td><td id="pdfMode">—</td></tr>
+      <tr><td data-i18n="numCircuits">Number of circuits</td><td id="pdfNumCircles">—</td></tr>
+      <tr><td data-i18n="totalLength">Total pipe length</td><td id="pdfTotalLength">—</td></tr>
+      <tr><td data-i18n="avgLength">Avg. circuit length</td><td id="pdfAvgLength">—</td></tr>
+      <tr><td data-i18n="totalArea">Total area</td><td id="pdfTotalArea">—</td></tr>
+      <tr><td data-i18n="powerPerSqm">Power per m²</td><td id="pdfPowerPerSqm">—</td></tr>
+      <tr><td data-i18n="totalFlow">Total flow</td><td id="pdfTotalFlow">—</td></tr>
+    </table>
+  </div>
+  <div class="pdf-section">
+    <h2 data-i18n="peRtSpecs">PE-RT pipe specifications</h2>
+    <table class="pdf-summary">
+      <tr><td>Density</td><td>0.933 g/cm³ (ASTM D-792)</td></tr>
+      <tr><td>Thermal expansion (20–70 °C)</td><td>0.19 mm/mK (DIN 53752 A)</td></tr>
+      <tr><td>Thermal conductivity at 60 °C</td><td>0.4 W/mK (DIN 52612-1)</td></tr>
+      <tr><td>Vicat softening point</td><td>122 °C (ASTM D-1525)</td></tr>
+      <tr><td>Elongation at break</td><td>&gt; 800 % (ISO 527-2)</td></tr>
+      <tr><td data-i18n="bendRadius">Maximum bend radius</td><td id="pdfBendRadius">—</td></tr>
+      <tr><td>Oxygen barrier</td><td>EVOH (DIN 4726)</td></tr>
+      <tr><td data-i18n="certifications">Certifications</td><td id="pdfCertifications">—</td></tr>
+    </table>
+  </div>
+  <div class="pdf-section">
+    <h2 data-i18n="circuits">Circuits</h2>
+    <table class="pdf-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th data-i18n="name">Name</th>
+          <th class="num" data-i18n="lengthM">Length (m)</th>
+          <th class="num" data-i18n="hohCm">Spacing (cm)</th>
+          <th class="num" data-i18n="areaM2">Area (m²)</th>
+          <th class="num" data-i18n="powerW">Power (W)</th>
+          <th class="num" data-i18n="flowLh">Flow (l/h)</th>
+          <th class="num" data-i18n="pressureMbar">Pressure drop (mbar)</th>
+          <th data-i18n="status">Status</th>
+        </tr>
+      </thead>
+      <tbody id="pdfCirclesBody"></tbody>
+    </table>
+  </div>
+  <div class="pdf-pump" id="pdfPumpBox"><h2 data-i18n="pumpIndication">Pump indication</h2><p>—</p></div>
+  <div id="pdfWarnings"></div>
+  <div class="pdf-footer">
+    <span data-i18n="generatedOn">Generated on</span> <span id="pdfDate">—</span> · PE-RT · NBN EN 1264
+    <br><br>
+    <span>© 2024 Bart Bracqué. All rights reserved.</span>
+  </div>
+</div>
+
+<script>
+// ==================== TRANSLATIONS ====================
+const I18N = {
+en:{appTitle:"Floor Heating Calculator",appSubtitle:"PE-RT 10/12/14/16 mm · free regime · pressure drop · pump advice",circuitManage:"Circuit Management",auto:"Automatic",manual:"Manual",roomParams:"Room parameters",roomArea:"Room area (m²)",hohDistance:"Pipe spacing",mainHeating:"Primary heating",secondaryHeating:"Secondary heating",comfortHeating:"Comfort / low demand",pipeDiameter:"Pipe diameter (PE-RT)",peRtSpecs:"PE-RT properties",waterRegime:"Water regime",supplyTemp:"Supply temperature (°C)",returnTemp:"Return temperature (°C)",globalParams:"Global parameters",addManualCircuits:"Add manual circuits",circuitName:"Circuit name",pipeLength85:"Pipe length (m) 85–110",custom:"Custom",customHoh:"Custom spacing (cm)",areaM2:"Area (m²)",powerW:"Power (W)",addCircuit:"Add circuit",updateCircuit:"Update",cancel:"Cancel",noCircuits:"No circuits added yet",calculate:"Calculate total",warning:"Warning:",warningText:"Indicative values. For exact design: consult a certified installer.",results:"Results",totalPower:"Total required power",powerPerSqm:"Power per m²",totalLength:"Total pipe length",waterAndPipe:"Water regime & pipe",supplyReturn:"Supply / return",deltaT:"ΔT",tGem:"Avg. water temperature",pipeDiameterShort:"Pipe diameter",totalFlow:"Total flow",avgFlow:"Flow per circuit (avg.)",circuitsOverview:"Circuits overview",avgLength:"Avg. length per circuit",totalArea:"Total area",pumpIndication:"Pump & pressure drop",calculateFirst:"Calculate to see results.",perCircuitDetails:"Details per circuit",calcFirst:"Enter data and click calculate.",reportAndSave:"Report & save",pdfReport:"📄 Download PDF report",exportJson:"Export JSON",importJson:"Import JSON",footerText:"Based on NBN EN 1264. Indicative values.",totalInstalledPower:"Total installed power",installData:"Installation data",mode:"Mode",numCircuits:"Number of circuits",bendRadius:"Maximum bend radius",certifications:"Certifications",circuits:"Circuits",name:"Name",lengthM:"Length (m)",hohCm:"Spacing (cm)",flowLh:"Flow (l/h)",pressureMbar:"Pressure drop (mbar)",status:"Status",generatedOn:"Generated on",ok:"OK",invalid:"Invalid",circuitsLabel:"circuits",circuitLabel:"circuit",kW:"kW",update:"Update",head:"Required head",pumpType:"Pump type",projectDetails:"Project & Installer Details",installerName:"Installer Name / Company",address:"Address",postalCity:"Postal Code & City",country:"Country",customerName:"Customer / Project Name",installerDetails:"Installer Details",customerDetails:"Customer / Installation Address"},
+nl:{appTitle:"Vloerverwarmingscalculator",appSubtitle:"PE-RT 10/12/14/16 mm · vrij regime · drukverlies · pompadvies",circuitManage:"Kringen Beheer",auto:"Automatisch",manual:"Handmatig",roomParams:"Ruimteparameters",roomArea:"Oppervlakte ruimte (m²)",hohDistance:"Hart-op-hart afstand",mainHeating:"Hoofdverwarming",secondaryHeating:"Bijverwarming",comfortHeating:"Comfort / lage vraag",pipeDiameter:"Buisdiameter (PE-RT)",peRtSpecs:"PE-RT eigenschappen",waterRegime:"Waterregime",supplyTemp:"Aanvoertemperatuur (°C)",returnTemp:"Retourtemperatuur (°C)",globalParams:"Globale Parameters",addManualCircuits:"Handmatige Kringen Toevoegen",circuitName:"Kring Naam",pipeLength85:"Leidinglengte (m) 85–110",custom:"Aangepast",customHoh:"Aangepaste H.o.H. (cm)",areaM2:"Oppervlakte (m²)",powerW:"Vermogen (W)",addCircuit:"Kring Toevoegen",updateCircuit:"Bijwerken",cancel:"Annuleren",noCircuits:"Nog geen kringen toegevoegd",calculate:"Bereken Totaal",warning:"Let op:",warningText:"Indicatieve waarden. Voor een exact ontwerp: raadpleeg een erkend installateur.",results:"Resultaten",totalPower:"Totaal benodigd vermogen",powerPerSqm:"Vermogen per m²",totalLength:"Totale buislengte",waterAndPipe:"Waterregime & buis",supplyReturn:"Aanvoer / retour",deltaT:"ΔT",tGem:"Gem. watertemperatuur",pipeDiameterShort:"Buisdiameter",totalFlow:"Totaal debiet",avgFlow:"Debiet per kring (gem.)",circuitsOverview:"Kringen Overzicht",avgLength:"Gem. lengte per kring",totalArea:"Totale oppervlakte",pumpIndication:"Pomp & drukverlies",calculateFirst:"Bereken om te zien.",perCircuitDetails:"Details per kring",calcFirst:"Voer gegevens in en klik op berekenen.",reportAndSave:"Rapport & Opslaan",pdfReport:"📄 Download PDF-rapport",exportJson:"Exporteer JSON",importJson:"Importeer JSON",footerText:"Gebaseerd op NBN EN 1264. Indicatieve waarden.",totalInstalledPower:"Totaal geïnstalleerd vermogen",installData:"Installatiegegevens",mode:"Modus",numCircuits:"Aantal kringen",bendRadius:"Maximale buigradius",certifications:"Keurmerken",circuits:"Kringen",name:"Naam",lengthM:"Lengte (m)",hohCm:"H.o.H. (cm)",flowLh:"Debiet (l/h)",pressureMbar:"Drukverlies (mbar)",status:"Status",generatedOn:"Gegenereerd op",ok:"OK",invalid:"Ongeldig",circuitsLabel:"kringen",circuitLabel:"kring",kW:"kW",update:"Bijwerken",head:"Benodigde opvoerhoogte",pumpType:"Type pomp",projectDetails:"Project & Installateur Gegevens",installerName:"Naam Installateur / Bedrijf",address:"Adres",postalCity:"Postcode & Stad",country:"Land",customerName:"Naam Klant / Project",installerDetails:"Installateur Gegevens",customerDetails:"Klant / Adres Installatie"},
+fr:{appTitle:"Calculateur de plancher chauffant",appSubtitle:"PE-RT 10/12/14/16 mm · régime libre · perte de charge · conseil pompe",circuitManage:"Gestion des circuits",auto:"Automatique",manual:"Manuel",roomParams:"Paramètres de la pièce",roomArea:"Surface de la pièce (m²)",hohDistance:"Entraxe",mainHeating:"Chauffage principal",secondaryHeating:"Chauffage d'appoint",comfortHeating:"Confort / faible demande",pipeDiameter:"Diamètre du tuyau (PE-RT)",peRtSpecs:"Propriétés PE-RT",waterRegime:"Régime d'eau",supplyTemp:"Température d'alimentation (°C)",returnTemp:"Température de retour (°C)",globalParams:"Paramètres globaux",addManualCircuits:"Ajouter des circuits manuels",circuitName:"Nom du circuit",pipeLength85:"Longueur (m) 85–110",custom:"Personnalisé",customHoh:"Entraxe perso. (cm)",areaM2:"Surface (m²)",powerW:"Puissance (W)",addCircuit:"Ajouter circuit",updateCircuit:"Mettre à jour",cancel:"Annuler",noCircuits:"Aucun circuit ajouté",calculate:"Calculer le total",warning:"Avertissement:",warningText:"Valeurs indicatives. Pour une conception exacte: consultez un installateur certifié.",results:"Résultats",totalPower:"Puissance totale requise",powerPerSqm:"Puissance par m²",totalLength:"Longueur totale du tuyau",waterAndPipe:"Régime d'eau & tuyau",supplyReturn:"Alimentation / retour",deltaT:"ΔT",tGem:"Température moyenne",pipeDiameterShort:"Diamètre",totalFlow:"Débit total",avgFlow:"Débit par circuit (moy.)",circuitsOverview:"Aperçu des circuits",avgLength:"Longueur moyenne",totalArea:"Surface totale",pumpIndication:"Pompe & perte de charge",calculateFirst:"Calculez pour voir.",perCircuitDetails:"Détails par circuit",calcFirst:"Entrez les données et calculez.",reportAndSave:"Rapport & sauvegarde",pdfReport:"📄 Télécharger rapport PDF",exportJson:"Exporter JSON",importJson:"Importer JSON",footerText:"Basé sur NBN EN 1264. Valeurs indicatives.",totalInstalledPower:"Puissance totale installée",installData:"Données d'installation",mode:"Mode",numCircuits:"Nombre de circuits",bendRadius:"Rayon de cintrage max.",certifications:"Certifications",circuits:"Circuits",name:"Nom",lengthM:"Longueur (m)",hohCm:"Entraxe (cm)",flowLh:"Débit (l/h)",pressureMbar:"Perte (mbar)",status:"Statut",generatedOn:"Généré le",ok:"OK",invalid:"Invalide",circuitsLabel:"circuits",circuitLabel:"circuit",kW:"kW",update:"Mettre à jour",head:"Hauteur manométrique",pumpType:"Type de pompe",projectDetails:"Détails du projet & installateur",installerName:"Nom de l'installateur / Entreprise",address:"Adresse",postalCity:"Code postal & Ville",country:"Pays",customerName:"Nom du client / Projet",installerDetails:"Détails de l'installateur",customerDetails:"Client / Adresse d'installation"},
+de:{appTitle:"Fußbodenheizungsrechner",appSubtitle:"PE-RT 10/12/14/16 mm · freies Regime · Druckverlust · Pumpenempfehlung",circuitManage:"Heizkreisverwaltung",auto:"Automatisch",manual:"Manuell",roomParams:"Raumparameter",roomArea:"Raumfläche (m²)",hohDistance:"Verlegeabstand",mainHeating:"Hauptheizung",secondaryHeating:"Zusatzheizung",comfortHeating:"Komfort / geringer Bedarf",pipeDiameter:"Rohrdurchmesser (PE-RT)",peRtSpecs:"PE-RT Eigenschaften",waterRegime:"Wasserregime",supplyTemp:"Vorlauftemperatur (°C)",returnTemp:"Rücklauftemperatur (°C)",globalParams:"Globale Parameter",addManualCircuits:"Manuelle Heizkreise hinzufügen",circuitName:"Heizkreisname",pipeLength85:"Rohrlänge (m) 85–110",custom:"Benutzerdefiniert",customHoh:"Benutzer. Abstand (cm)",areaM2:"Fläche (m²)",powerW:"Leistung (W)",addCircuit:"Heizkreis hinzufügen",updateCircuit:"Aktualisieren",cancel:"Abbrechen",noCircuits:"Noch keine Heizkreise",calculate:"Gesamt berechnen",warning:"Warnung:",warningText:"Orientierungswerte. Für exakte Planung: Installateur konsultieren.",results:"Ergebnisse",totalPower:"Gesamtleistung",powerPerSqm:"Leistung pro m²",totalLength:"Gesamte Rohrlänge",waterAndPipe:"Wasserregime & Rohr",supplyReturn:"Vorlauf / Rücklauf",deltaT:"ΔT",tGem:"Mittlere Wassertemperatur",pipeDiameterShort:"Rohrdurchmesser",totalFlow:"Gesamtdurchfluss",avgFlow:"Durchfluss pro Heizkreis (Ø)",circuitsOverview:"Heizkreisübersicht",avgLength:"Ø Länge pro Heizkreis",totalArea:"Gesamtfläche",pumpIndication:"Pumpe & Druckverlust",calculateFirst:"Berechnen für Ergebnisse.",perCircuitDetails:"Details pro Heizkreis",calcFirst:"Daten eingeben und berechnen.",reportAndSave:"Bericht & Speichern",pdfReport:"📄 PDF-Bericht herunterladen",exportJson:"JSON exportieren",importJson:"JSON importieren",footerText:"Basierend auf NBN EN 1264. Orientierungswerte.",totalInstalledPower:"Gesamt installierte Leistung",installData:"Installationsdaten",mode:"Modus",numCircuits:"Anzahl Heizkreise",bendRadius:"Max. Biegeradius",certifications:"Zertifizierungen",circuits:"Heizkreise",name:"Name",lengthM:"Länge (m)",hohCm:"Abstand (cm)",flowLh:"Durchfluss (l/h)",pressureMbar:"Druckverlust (mbar)",status:"Status",generatedOn:"Erstellt am",ok:"OK",invalid:"Ungültig",circuitsLabel:"Heizkreise",circuitLabel:"Heizkreis",kW:"kW",update:"Aktualisieren",head:"Erforderliche Förderhöhe",pumpType:"Pumpentyp",projectDetails:"Projekt- & Installateurdetails",installerName:"Name des Installateurs / Firma",address:"Adresse",postalCity:"PLZ & Stadt",country:"Land",customerName:"Kundenname / Projekt",installerDetails:"Installateurdetails",customerDetails:"Kunde / Installationsadresse"},
+zh:{appTitle:"地暖计算器",appSubtitle:"PE-RT 10/12/14/16 mm · 自由水系统 · 压力损失 · 水泵建议",circuitManage:"回路管理",auto:"自动",manual:"手动",roomParams:"房间参数",roomArea:"房间面积 (m²)",hohDistance:"管间距",mainHeating:"主供暖",secondaryHeating:"辅助供暖",comfortHeating:"舒适 / 低需求",pipeDiameter:"管径 (PE-RT)",peRtSpecs:"PE-RT 材料特性",waterRegime:"水温设定",supplyTemp:"供水温度 (°C)",returnTemp:"回水温度 (°C)",globalParams:"全局参数",addManualCircuits:"添加手动回路",circuitName:"回路名称",pipeLength85:"管道长度 (m) 85–110",custom:"自定义",customHoh:"自定义间距 (cm)",areaM2:"面积 (m²)",powerW:"功率 (W)",addCircuit:"添加回路",updateCircuit:"更新",cancel:"取消",noCircuits:"尚未添加回路",calculate:"计算总计",warning:"警告:",warningText:"参考值。精确设计请咨询认证安装人员。",results:"结果",totalPower:"所需总功率",powerPerSqm:"单位面积功率",totalLength:"管道总长度",waterAndPipe:"水温 & 管道",supplyReturn:"供水 / 回水",deltaT:"ΔT",tGem:"平均水温",pipeDiameterShort:"管径",totalFlow:"总流量",avgFlow:"每回路平均流量",circuitsOverview:"回路概览",avgLength:"每回路平均长度",totalArea:"总面积",pumpIndication:"水泵 & 压力损失",calculateFirst:"点击计算查看结果。",perCircuitDetails:"每回路详情",calcFirst:"输入数据后点击计算。",reportAndSave:"报告 & 保存",pdfReport:"📄 下载 PDF 报告",exportJson:"导出 JSON",importJson:"导入 JSON",footerText:"基于 NBN EN 1264。参考值。",totalInstalledPower:"总安装功率",installData:"安装数据",mode:"模式",numCircuits:"回路数量",bendRadius:"最大弯曲半径",certifications:"认证",circuits:"回路",name:"名称",lengthM:"长度 (m)",hohCm:"间距 (cm)",flowLh:"流量 (l/h)",pressureMbar:"压力损失 (mbar)",status:"状态",generatedOn:"生成日期",ok:"正常",invalid:"无效",circuitsLabel:"回路",circuitLabel:"回路",kW:"kW",update:"更新",head:"所需扬程",pumpType:"水泵类型",projectDetails:"项目与安装人员详情",installerName:"安装人员/公司名称",address:"地址",postalCity:"邮政编码与城市",country:"国家",customerName:"客户/项目名称",installerDetails:"安装人员详情",customerDetails:"客户/安装地址"},
+es:{appTitle:"Calculadora de suelo radiante",appSubtitle:"PE-RT 10/12/14/16 mm · régimen libre · pérdida de carga · consejo de bomba",circuitManage:"Gestión de circuitos",auto:"Automático",manual:"Manual",roomParams:"Parámetros de la habitación",roomArea:"Superficie (m²)",hohDistance:"Distancia entre tubos",mainHeating:"Calefacción principal",secondaryHeating:"Calefacción secundaria",comfortHeating:"Confort / baja demanda",pipeDiameter:"Diámetro del tubo (PE-RT)",peRtSpecs:"Propiedades PE-RT",waterRegime:"Régimen de agua",supplyTemp:"Temperatura de impulsión (°C)",returnTemp:"Temperatura de retorno (°C)",globalParams:"Parámetros globales",addManualCircuits:"Añadir circuitos manuales",circuitName:"Nombre del circuito",pipeLength85:"Longitud (m) 85–110",custom:"Personalizado",customHoh:"Distancia perso. (cm)",areaM2:"Superficie (m²)",powerW:"Potencia (W)",addCircuit:"Añadir circuito",updateCircuit:"Actualizar",cancel:"Cancelar",noCircuits:"Sin circuitos añadidos",calculate:"Calcular total",warning:"Advertencia:",warningText:"Valores indicativos. Para un diseño exacto: consulte a un instalador certificado.",results:"Resultados",totalPower:"Potencia total requerida",powerPerSqm:"Potencia por m²",totalLength:"Longitud total del tubo",waterAndPipe:"Régimen de agua & tubo",supplyReturn:"Impulsión / retorno",deltaT:"ΔT",tGem:"Temp. media del agua",pipeDiameterShort:"Diámetro",totalFlow:"Caudal total",avgFlow:"Caudal por circuito (med.)",circuitsOverview:"Resumen de circuitos",avgLength:"Longitud media",totalArea:"Superficie total",pumpIndication:"Bomba & pérdida de carga",calculateFirst:"Calcule para ver resultados.",perCircuitDetails:"Detalles por circuito",calcFirst:"Introduzca datos y calcule.",reportAndSave:"Informe & guardar",pdfReport:"📄 Descargar informe PDF",exportJson:"Exportar JSON",importJson:"Importar JSON",footerText:"Basado en NBN EN 1264. Valores indicativos.",totalInstalledPower:"Potencia total instalada",installData:"Datos de instalación",mode:"Modo",numCircuits:"Nº de circuitos",bendRadius:"Radio de curvatura máx.",certifications:"Certificaciones",circuits:"Circuitos",name:"Nombre",lengthM:"Longitud (m)",hohCm:"Distancia (cm)",flowLh:"Caudal (l/h)",pressureMbar:"Pérdida (mbar)",status:"Estado",generatedOn:"Generado el",ok:"OK",invalid:"Inválido",circuitsLabel:"circuitos",circuitLabel:"circuito",kW:"kW",update:"Actualizar",head:"Altura manométrica",pumpType:"Tipo de bomba",projectDetails:"Detalles del proyecto e instalador",installerName:"Nombre del instalador / Empresa",address:"Dirección",postalCity:"Código postal y ciudad",country:"País",customerName:"Nombre del cliente / Proyecto",installerDetails:"Detalles del instalador",customerDetails:"Cliente / Dirección de instalación"},
+it:{appTitle:"Calcolatore per riscaldamento a pavimento",appSubtitle:"PE-RT 10/12/14/16 mm · regime libero · perdita di carico · consiglio pompa",circuitManage:"Gestione circuiti",auto:"Automatico",manual:"Manuale",roomParams:"Parametri stanza",roomArea:"Superficie stanza (m²)",hohDistance:"Passo",mainHeating:"Riscaldamento principale",secondaryHeating:"Riscaldamento integrativo",comfortHeating:"Comfort / bassa richiesta",pipeDiameter:"Diametro tubo (PE-RT)",peRtSpecs:"Proprietà PE-RT",waterRegime:"Regime idraulico",supplyTemp:"Temperatura di mandata (°C)",returnTemp:"Temperatura di ritorno (°C)",globalParams:"Parametri globali",addManualCircuits:"Aggiungi circuiti manuali",circuitName:"Nome circuito",pipeLength85:"Lunghezza (m) 85–110",custom:"Personalizzato",customHoh:"Passo perso. (cm)",areaM2:"Superficie (m²)",powerW:"Potenza (W)",addCircuit:"Aggiungi circuito",updateCircuit:"Aggiorna",cancel:"Annulla",noCircuits:"Nessun circuito aggiunto",calculate:"Calcola totale",warning:"Avviso:",warningText:"Valori indicativi. Per progetto esatto: consultare installatore certificato.",results:"Risultati",totalPower:"Potenza totale richiesta",powerPerSqm:"Potenza per m²",totalLength:"Lunghezza totale tubo",waterAndPipe:"Regime idraulico & tubo",supplyReturn:"Mandata / ritorno",deltaT:"ΔT",tGem:"Temp. media acqua",pipeDiameterShort:"Diametro",totalFlow:"Portata totale",avgFlow:"Portata per circuito (media)",circuitsOverview:"Panoramica circuiti",avgLength:"Lunghezza media",totalArea:"Superficie totale",pumpIndication:"Pompa & perdita di carico",calculateFirst:"Calcola per vedere.",perCircuitDetails:"Dettagli per circuito",calcFirst:"Inserire dati e calcolare.",reportAndSave:"Rapporto & salva",pdfReport:"📄 Scarica rapporto PDF",exportJson:"Esporta JSON",importJson:"Importa JSON",footerText:"Basato su NBN EN 1264. Valori indicativi.",totalInstalledPower:"Potenza totale installata",installData:"Dati installazione",mode:"Modalità",numCircuits:"N° circuiti",bendRadius:"Raggio curvatura max",certifications:"Certificazioni",circuits:"Circuiti",name:"Nome",lengthM:"Lunghezza (m)",hohCm:"Passo (cm)",flowLh:"Portata (l/h)",pressureMbar:"Perdita (mbar)",status:"Stato",generatedOn:"Generato il",ok:"OK",invalid:"Non valido",circuitsLabel:"circuiti",circuitLabel:"circuito",kW:"kW",update:"Aggiorna",head:"Prevalenza richiesta",pumpType:"Tipo di pompa",projectDetails:"Dettagli progetto e installatore",installerName:"Nome installatore / Azienda",address:"Indirizzo",postalCity:"CAP e Città",country:"Paese",customerName:"Nome cliente / Progetto",installerDetails:"Dettagli installatore",customerDetails:"Cliente / Indirizzo installazione"},
+la:{appTitle:"Calculator calefactionis pavimenti",appSubtitle:"PE-RT 10/12/14/16 mm · regimen liberum · iactura pressionis · consilium sentinae",circuitManage:"Administratio circuituum",auto:"Automaticus",manual:"Manualis",roomParams:"Parametri cubiculi",roomArea:"Area cubiculi (m²)",hohDistance:"Intervallum inter tubos",mainHeating:"Calefactio principalis",secondaryHeating:"Calefactio secundaria",comfortHeating:"Commoditas / parva postulatio",pipeDiameter:"Diameter tubi (PE-RT)",peRtSpecs:"Proprietates PE-RT",waterRegime:"Regimen aquae",supplyTemp:"Temperatura adductionis (°C)",returnTemp:"Temperatura reditus (°C)",globalParams:"Parametri globales",addManualCircuits:"Circuituum manualium addere",circuitName:"Nomen circuitus",pipeLength85:"Longitudo tubi (m) 85–110",custom:"Personalis",customHoh:"Intervallum pers. (cm)",areaM2:"Area (m²)",powerW:"Potentia (W)",addCircuit:"Circuitum addere",updateCircuit:"Renovare",cancel:"Abrogare",noCircuits:"Nulli circuitus additi",calculate:"Totum computare",warning:"Monitum:",warningText:"Valores indicativi. Pro exacto consilio: consule installatorem peritum.",results:"Resultata",totalPower:"Potentia totalis requisita",powerPerSqm:"Potentia per m²",totalLength:"Longitudo tubi totalis",waterAndPipe:"Regimen aquae & tubus",supplyReturn:"Adductio / reditus",deltaT:"ΔT",tGem:"Temp. media aquae",pipeDiameterShort:"Diameter",totalFlow:"Fluxus totalis",avgFlow:"Fluxus per circuitum (med.)",circuitsOverview:"Conspectus circuituum",avgLength:"Longitudo media",totalArea:"Area totalis",pumpIndication:"Sentina & iactura pressionis",calculateFirst:"Computa ut videas.",perCircuitDetails:"Singula per circuitum",calcFirst:"Inscribe data et computa.",reportAndSave:"Relatio & servare",pdfReport:"📄 Relationem PDF deponere",exportJson:"Exportare JSON",importJson:"Importare JSON",footerText:"Fundatum in NBN EN 1264. Valores indicativi.",totalInstalledPower:"Potentia totalis installata",installData:"Data installationis",mode:"Modus",numCircuits:"Numerus circuituum",bendRadius:"Radius flexionis maximus",certifications:"Attestationes",circuits:"Circuitus",name:"Nomen",lengthM:"Longitudo (m)",hohCm:"Intervallum (cm)",flowLh:"Fluxus (l/h)",pressureMbar:"Iactura (mbar)",status:"Status",generatedOn:"Generatum die",ok:"OK",invalid:"Invalidus",circuitsLabel:"circuitus",circuitLabel:"circuitus",kW:"kW",update:"Renovare",head:"Altitudo requisita",pumpType:"Typus sentinae",projectDetails:"Singula operis & installatoris",installerName:"Nomen installatoris / Societas",address:"Inscriptio",postalCity:"Codex postalis & Urbs",country:"Terra",customerName:"Nomen clientis / Operis",installerDetails:"Singula installatoris",customerDetails:"Cliens / Inscriptio installationis"},
+sv:{appTitle:"Golvvärmekalkylator",appSubtitle:"PE-RT 10/12/14/16 mm · fritt regime · tryckfall · pumpråd",circuitManage:"Kretshantering",auto:"Automatisk",manual:"Manuell",roomParams:"Rumsparametrar",roomArea:"Rumsarea (m²)",hohDistance:"Centrumavstånd",mainHeating:"Huvudvärme",secondaryHeating:"Kompletteringsvärme",comfortHeating:"Komfort / lågt behov",pipeDiameter:"Rördiameter (PE-RT)",peRtSpecs:"PE-RT egenskaper",waterRegime:"Vattenregim",supplyTemp:"Framledningstemperatur (°C)",returnTemp:"Returtemperatur (°C)",globalParams:"Globala parametrar",addManualCircuits:"Lägg till manuella kretsar",circuitName:"Kretsnamn",pipeLength85:"Rörlängd (m) 85–110",custom:"Anpassad",customHoh:"Anpassat avstånd (cm)",areaM2:"Area (m²)",powerW:"Effekt (W)",addCircuit:"Lägg till krets",updateCircuit:"Uppdatera",cancel:"Avbryt",noCircuits:"Inga kretsar tillagda",calculate:"Beräkna totalt",warning:"Varning:",warningText:"Vägledande värden. För exakt design: konsultera certifierad installatör.",results:"Resultat",totalPower:"Total erforderlig effekt",powerPerSqm:"Effekt per m²",totalLength:"Total rörlängd",waterAndPipe:"Vattenregim & rör",supplyReturn:"Framledning / retur",deltaT:"ΔT",tGem:"Medelvattentemperatur",pipeDiameterShort:"Rördiameter",totalFlow:"Totalt flöde",avgFlow:"Flöde per krets (medel)",circuitsOverview:"Kretsöversikt",avgLength:"Medellängd per krets",totalArea:"Total area",pumpIndication:"Pump & tryckfall",calculateFirst:"Beräkna för resultat.",perCircuitDetails:"Detaljer per krets",calcFirst:"Ange data och beräkna.",reportAndSave:"Rapport & spara",pdfReport:"📄 Ladda ner PDF-rapport",exportJson:"Exportera JSON",importJson:"Importera JSON",footerText:"Baserat på NBN EN 1264. Vägledande värden.",totalInstalledPower:"Total installerad effekt",installData:"Installationsdata",mode:"Läge",numCircuits:"Antal kretsar",bendRadius:"Max böjradie",certifications:"Certifieringar",circuits:"Kretsar",name:"Namn",lengthM:"Längd (m)",hohCm:"Avstånd (cm)",flowLh:"Flöde (l/h)",pressureMbar:"Tryckfall (mbar)",status:"Status",generatedOn:"Genererad",ok:"OK",invalid:"Ogiltig",circuitsLabel:"kretsar",circuitLabel:"krets",kW:"kW",update:"Uppdatera",head:"Erforderlig lyfthöjd",pumpType:"Pumptyp",projectDetails:"Projekt- & installatörsuppgifter",installerName:"Installatörens namn / Företag",address:"Adress",postalCity:"Postnummer & Stad",country:"Land",customerName:"Kundnamn / Projekt",installerDetails:"Installatörsuppgifter",customerDetails:"Kund / Installationsadress"},
+no:{appTitle:"Gulvvarmekalkulator",appSubtitle:"PE-RT 10/12/14/16 mm · fritt regime · trykkfall · pumperåd",circuitManage:"Kretsbehandling",auto:"Automatisk",manual:"Manuell",roomParams:"Romparametere",roomArea:"Romareal (m²)",hohDistance:"Sentrumsavstand",mainHeating:"Hovedvarme",secondaryHeating:"Tilleggsvarme",comfortHeating:"Komfort / lavt behov",pipeDiameter:"Rørdiameter (PE-RT)",peRtSpecs:"PE-RT egenskaper",waterRegime:"Vannregime",supplyTemp:"Fremløpstemperatur (°C)",returnTemp:"Returtemperatur (°C)",globalParams:"Globale parametere",addManualCircuits:"Legg til manuelle kretser",circuitName:"Kretsnavn",pipeLength85:"Rørlengde (m) 85–110",custom:"Tilpasset",customHoh:"Tilpasset avstand (cm)",areaM2:"Areal (m²)",powerW:"Effekt (W)",addCircuit:"Legg til krets",updateCircuit:"Oppdater",cancel:"Avbryt",noCircuits:"Ingen kretser lagt til",calculate:"Beregn totalt",warning:"Advarsel:",warningText:"Veiledende verdier. For eksakt design: konsulter sertifisert installatør.",results:"Resultater",totalPower:"Total nødvendig effekt",powerPerSqm:"Effekt per m²",totalLength:"Total rørlengde",waterAndPipe:"Vannregime & rør",supplyReturn:"Fremløp / retur",deltaT:"ΔT",tGem:"Gj.sn. vanntemperatur",pipeDiameterShort:"Rørdiameter",totalFlow:"Total strømning",avgFlow:"Strømning per krets (snitt)",circuitsOverview:"Kretsoversikt",avgLength:"Snittlengde per krets",totalArea:"Totalt areal",pumpIndication:"Pumpe & trykkfall",calculateFirst:"Beregn for resultater.",perCircuitDetails:"Detaljer per krets",calcFirst:"Angi data og beregn.",reportAndSave:"Rapport & lagre",pdfReport:"📄 Last ned PDF-rapport",exportJson:"Eksporter JSON",importJson:"Importer JSON",footerText:"Basert på NBN EN 1264. Veiledende verdier.",totalInstalledPower:"Total installert effekt",installData:"Installasjonsdata",mode:"Modus",numCircuits:"Antall kretser",bendRadius:"Maks bøyeradius",certifications:"Sertifiseringer",circuits:"Kretser",name:"Navn",lengthM:"Lengde (m)",hohCm:"Avstand (cm)",flowLh:"Strømning (l/h)",pressureMbar:"Trykkfall (mbar)",status:"Status",generatedOn:"Generert",ok:"OK",invalid:"Ugyldig",circuitsLabel:"kretser",circuitLabel:"krets",kW:"kW",update:"Oppdater",head:"Nødvendig løftehøyde",pumpType:"Pumpetype",projectDetails:"Prosjekt- & installatørdetaljer",installerName:"Installatørens navn / Firma",address:"Adresse",postalCity:"Postnummer & By",country:"Land",customerName:"Kundenavn / Prosjekt",installerDetails:"Installatørdetaljer",customerDetails:"Kunde / Installasjonsadresse"},
+uk:{appTitle:"Калькулятор теплої підлоги",appSubtitle:"PE-RT 10/12/14/16 мм · вільний режим · втрата тиску · порада щодо насоса",circuitManage:"Керування контурами",auto:"Автоматично",manual:"Вручну",roomParams:"Параметри приміщення",roomArea:"Площа приміщення (м²)",hohDistance:"Крок труб",mainHeating:"Основне опалення",secondaryHeating:"Додаткове опалення",comfortHeating:"Комфорт / низький попит",pipeDiameter:"Діаметр труби (PE-RT)",peRtSpecs:"Властивості PE-RT",waterRegime:"Водяний режим",supplyTemp:"Температура подачі (°C)",returnTemp:"Температура повернення (°C)",globalParams:"Глобальні параметри",addManualCircuits:"Додати ручні контури",circuitName:"Назва контуру",pipeLength85:"Довжина (м) 85–110",custom:"Власний",customHoh:"Власний крок (см)",areaM2:"Площа (м²)",powerW:"Потужність (Вт)",addCircuit:"Додати контур",updateCircuit:"Оновити",cancel:"Скасувати",noCircuits:"Контурів ще немає",calculate:"Обчислити підсумок",warning:"Увага:",warningText:"Орієнтовні значення. Для точного проєкту: зверніться до сертифікованого монтажника.",results:"Результати",totalPower:"Загальна потужність",powerPerSqm:"Потужність на м²",totalLength:"Загальна довжина",waterAndPipe:"Режим & труба",supplyReturn:"Подача / повернення",deltaT:"ΔT",tGem:"Середня t води",pipeDiameterShort:"Діаметр",totalFlow:"Загальна витрата",avgFlow:"Витрата на контур (сер.)",circuitsOverview:"Огляд контурів",avgLength:"Середня довжина",totalArea:"Загальна площа",pumpIndication:"Насос & втрата тиску",calculateFirst:"Обчисліть для результату.",perCircuitDetails:"Деталі по контурах",calcFirst:"Введіть дані та обчисліть.",reportAndSave:"Звіт & збереження",pdfReport:"📄 Завантажити PDF-звіт",exportJson:"Експорт JSON",importJson:"Імпорт JSON",footerText:"На основі NBN EN 1264. Орієнтовні значення.",totalInstalledPower:"Загальна встановлена потужність",installData:"Дані встановлення",mode:"Режим",numCircuits:"Кількість контурів",bendRadius:"Макс. радіус згину",certifications:"Сертифікати",circuits:"Контури",name:"Назва",lengthM:"Довжина (м)",hohCm:"Крок (см)",flowLh:"Витрата (л/год)",pressureMbar:"Втрата (мбар)",status:"Статус",generatedOn:"Створено",ok:"OK",invalid:"Недійсний",circuitsLabel:"контурів",circuitLabel:"контур",kW:"кВт",update:"Оновити",head:"Необхідний напір",pumpType:"Тип насоса",projectDetails:"Деталі проєкту та монтажника",installerName:"Ім'я монтажника / Компанія",address:"Адреса",postalCity:"Поштовий індекс і місто",country:"Країна",customerName:"Ім'я клієнта / Проєкт",installerDetails:"Деталі монтажника",customerDetails:"Клієнт / Адреса встановлення"},
+ru:{appTitle:"Калькулятор тёплого пола",appSubtitle:"PE-RT 10/12/14/16 мм · свободный режим · потеря давления · совет по насосу",circuitManage:"Управление контурами",auto:"Автоматически",manual:"Вручную",roomParams:"Параметры помещения",roomArea:"Площадь помещения (м²)",hohDistance:"Шаг труб",mainHeating:"Основное отопление",secondaryHeating:"Дополнительное отопление",comfortHeating:"Комфорт / низкий спрос",pipeDiameter:"Диаметр трубы (PE-RT)",peRtSpecs:"Свойства PE-RT",waterRegime:"Водяной режим",supplyTemp:"Температура подачи (°C)",returnTemp:"Температура обратки (°C)",globalParams:"Глобальные параметры",addManualCircuits:"Добавить ручные контуры",circuitName:"Название контура",pipeLength85:"Длина (м) 85–110",custom:"Свой",customHoh:"Свой шаг (см)",areaM2:"Площадь (м²)",powerW:"Мощность (Вт)",addCircuit:"Добавить контур",updateCircuit:"Обновить",cancel:"Отмена",noCircuits:"Контуры пока не добавлены",calculate:"Рассчитать итог",warning:"Внимание:",warningText:"Ориентировочные значения. Для точного проекта: обратитесь к сертифицированному монтажнику.",results:"Результаты",totalPower:"Общая требуемая мощность",powerPerSqm:"Мощность на м²",totalLength:"Общая длина трубы",waterAndPipe:"Режим & труба",supplyReturn:"Подача / обратка",deltaT:"ΔT",tGem:"Средняя t воды",pipeDiameterShort:"Диаметр",totalFlow:"Общий расход",avgFlow:"Расход на контур (сред.)",circuitsOverview:"Обзор контуров",avgLength:"Средняя длина",totalArea:"Общая площадь",pumpIndication:"Насос & потеря давления",calculateFirst:"Рассчитайте для результата.",perCircuitDetails:"Детали по контурам",calcFirst:"Введите данные и рассчитайте.",reportAndSave:"Отчёт & сохранение",pdfReport:"📄 Скачать PDF-отчёт",exportJson:"Экспорт JSON",importJson:"Импорт JSON",footerText:"На основе NBN EN 1264. Ориентировочные значения.",totalInstalledPower:"Общая установленная мощность",installData:"Данные установки",mode:"Режим",numCircuits:"Кол-во контуров",bendRadius:"Макс. радиус изгиба",certifications:"Сертификаты",circuits:"Контуры",name:"Название",lengthM:"Длина (м)",hohCm:"Шаг (см)",flowLh:"Расход (л/ч)",pressureMbar:"Потеря (мбар)",status:"Статус",generatedOn:"Создано",ok:"OK",invalid:"Недейств.",circuitsLabel:"контуров",circuitLabel:"контур",kW:"кВт",update:"Обновить",head:"Требуемый напор",pumpType:"Тип насоса",projectDetails:"Детали проекта и монтажника",installerName:"Имя монтажника / Компания",address:"Адрес",postalCity:"Индекс и город",country:"Страна",customerName:"Имя клиента / Проект",installerDetails:"Данные монтажника",customerDetails:"Клиент / Адрес установки"},
+ja:{appTitle:"床暖房計算機",appSubtitle:"PE-RT 10/12/14/16 mm · 自由水システム · 圧力損失 · ポンプ推奨",circuitManage:"回路管理",auto:"自動",manual:"手動",roomParams:"部屋パラメータ",roomArea:"部屋の面積 (m²)",hohDistance:"管間隔",mainHeating:"主暖房",secondaryHeating:"補助暖房",comfortHeating:"快適 / 低需要",pipeDiameter:"管径 (PE-RT)",peRtSpecs:"PE-RT 特性",waterRegime:"水システム",supplyTemp:"供給温度 (°C)",returnTemp:"戻り温度 (°C)",globalParams:"グローバルパラメータ",addManualCircuits:"手動回路を追加",circuitName:"回路名",pipeLength85:"配管長 (m) 85–110",custom:"カスタム",customHoh:"カスタム間隔 (cm)",areaM2:"面積 (m²)",powerW:"出力 (W)",addCircuit:"回路を追加",updateCircuit:"更新",cancel:"キャンセル",noCircuits:"回路がまだありません",calculate:"合計を計算",warning:"警告:",warningText:"参考値です。正確な設計には認定施工業者にご相談ください。",results:"結果",totalPower:"必要総出力",powerPerSqm:"m²あたりの出力",totalLength:"総配管長",waterAndPipe:"水システム & 配管",supplyReturn:"供給 / 戻り",deltaT:"ΔT",tGem:"平均水温",pipeDiameterShort:"管径",totalFlow:"総流量",avgFlow:"回路あたり流量 (平均)",circuitsOverview:"回路概要",avgLength:"回路あたり平均長",totalArea:"総面積",pumpIndication:"ポンプ & 圧力損失",calculateFirst:"計算して結果を表示。",perCircuitDetails:"回路ごとの詳細",calcFirst:"データを入力して計算。",reportAndSave:"レポート & 保存",pdfReport:"📄 PDFレポートをダウンロード",exportJson:"JSONエクスポート",importJson:"JSONインポート",footerText:"NBN EN 1264 に基づく。参考値。",totalInstalledPower:"総設置出力",installData:"設置データ",mode:"モード",numCircuits:"回路数",bendRadius:"最大曲げ半径",certifications:"認証",circuits:"回路",name:"名前",lengthM:"長さ (m)",hohCm:"間隔 (cm)",flowLh:"流量 (l/h)",pressureMbar:"圧力損失 (mbar)",status:"状態",generatedOn:"生成日",ok:"OK",invalid:"無効",circuitsLabel:"回路",circuitLabel:"回路",kW:"kW",update:"更新",head:"必要揚程",pumpType:"ポンプ種類",projectDetails:"プロジェクトと施工者情報",installerName:"施工者名 / 会社名",address:"住所",postalCity:"郵便番号と都市",country:"国",customerName:"顧客名 / プロジェクト名",installerDetails:"施工者情報",customerDetails:"顧客 / 施工住所"}
+};
+
+let currentLang = localStorage.getItem('lang') || 'en';
+if (!I18N[currentLang]) currentLang = 'en';
+
+function t(key){ return (I18N[currentLang] && I18N[currentLang][key]) || I18N.en[key] || key; }
+function setLang(lang){ if(!I18N[lang]) return; currentLang=lang; localStorage.setItem('lang',lang); document.documentElement.lang=lang; applyTranslations(); renderCirclesList(); updateDeltaDisplay(); calculate(); }
+function applyTranslations(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent=t(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{ el.placeholder=t(el.getAttribute('data-i18n-placeholder')); });
+  updateSpecsPanel('auto', getAutoDiameter());
+  updateSpecsPanel('manual', getManualDiameter());
+}
+
+// ==================== PE-RT DATA ====================
+const PIPE_DATA = {
+  10:{outer:10,wall:1.3,inner:7.4,bendRadiusCm:5,certified:false,label:"10 × 1.3"},
+  12:{outer:12,wall:2.0,inner:8.0,bendRadiusCm:6,certified:false,label:"12 × 2.0"},
+  14:{outer:14,wall:2.0,inner:10.0,bendRadiusCm:7,certified:true,label:"14 × 2.0"},
+  16:{outer:16,wall:2.0,inner:12.0,bendRadiusCm:8,certified:true,label:"16 × 2.0"}
+};
+const BASE_POWER = {
+  10:{10:70,15:52,18:38},
+  12:{10:73,15:54,18:40},
+  14:{10:76,15:57,18:42},
+  16:{10:80,15:60,18:45}
+};
+const PE_RT_SPECS = {
+  density:"0.933 g/cm³ (ASTM D-792)",
+  expansion:"0.19 mm/mK (DIN 53752 A)",
+  conductivity:"0.4 W/mK (DIN 52612-1)",
+  vicat:"122 °C (ASTM D-1525)",
+  elongation:"> 800 % (ISO 527-2)",
+  oxygen:"EVOH (DIN 4726)"
+};
+
+document.addEventListener('DOMContentLoaded', function(){
+  let manualCircles = [];
+  let editingCircleIndex = -1;
+  let lastCalculation = null;
+
+  const MIN_LENGTH = 85, MAX_LENGTH = 110;
+  const ROOM_TEMP = 20, REF_TGEM = 37.5;
+  const WATER_DENSITY = 971.8, WATER_VISCOSITY = 0.000653;
+
+  // === LAAD EN SLA PROJECTGEGEVENS OP ===
+  const detailFields = ['installerName','installerAddress','installerCity','installerCountry','customerName','customerAddress','customerCity','customerCountry'];
+  detailFields.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) {
+      el.value = localStorage.getItem('proj_' + id) || '';
+      el.addEventListener('input', () => localStorage.setItem('proj_' + id, el.value));
+    }
+  });
+
+  function getAutoDiameter(){ return parseFloat(document.getElementById('autoDiameter').value); }
+  function getManualDiameter(){ return parseFloat(document.getElementById('manualDiameter').value); }
+  function getCurrentDiameter(){ const tab=document.querySelector('.tab-btn.active').getAttribute('data-tab'); return tab==='auto'?getAutoDiameter():getManualDiameter(); }
+
+  window.toggleSpecs = function(prefix){
+    const body = document.getElementById(prefix+'SpecsBody');
+    const header = body.previousElementSibling;
+    body.classList.toggle('open'); header.classList.toggle('open');
+  };
+
+  function updateSpecsPanel(prefix, diameter){
+    const body = document.getElementById(prefix+'SpecsBody');
+    const header = body.previousElementSibling.querySelector('span:first-child');
+    const d = PIPE_DATA[diameter];
+    const cert = d.certified ? 'KOMO + SKZ, DIN 4726' : '—';
+    body.innerHTML = `
+      <table class="spec-table">
+        <tr><td>Density</td><td>${PE_RT_SPECS.density}</td></tr>
+        <tr><td>Expansion (20–70 °C)</td><td>${PE_RT_SPECS.expansion}</td></tr>
+        <tr><td>Conductivity 60 °C</td><td>${PE_RT_SPECS.conductivity}</td></tr>
+        <tr><td>Vicat</td><td>${PE_RT_SPECS.vicat}</td></tr>
+        <tr><td>Elongation</td><td>${PE_RT_SPECS.elongation}</td></tr>
+        <tr><td>${t('bendRadius')}</td><td>5 × ${d.bendRadiusCm} cm</td></tr>
+        <tr><td>Oxygen barrier</td><td>${PE_RT_SPECS.oxygen}</td></tr>
+        <tr><td>${t('certifications')}</td><td>${cert}</td></tr>
+      </table>
+      <div class="spec-note">${d.label} mm (inner ${d.inner} mm)</div>`;
+    header.textContent = `${t('peRtSpecs')} (${diameter} mm)`;
+  }
+
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  tabBtns.forEach(btn=>btn.addEventListener('click',function(){
+    tabBtns.forEach(b=>b.classList.remove('active')); this.classList.add('active');
+    const tab = this.getAttribute('data-tab');
+    if(tab==='auto'){ document.getElementById('auto-mode-section').classList.remove('hidden'); document.getElementById('manual-mode-section').classList.add('hidden'); }
+    else { document.getElementById('auto-mode-section').classList.add('hidden'); document.getElementById('manual-mode-section').classList.remove('hidden'); }
+    calculate();
+  }));
+
+  document.querySelectorAll('#auto-mode-section .hoh-option').forEach(opt=>{
+    opt.addEventListener('click',function(){
+      document.querySelectorAll('#auto-mode-section .hoh-option').forEach(o=>o.classList.remove('active'));
+      this.classList.add('active');
+      document.getElementById('hohDistance').value = this.getAttribute('data-value');
+      calculate();
+    });
+  });
+
+  document.querySelectorAll('#autoDiameterOptions .diameter-option').forEach(opt=>{
+    opt.addEventListener('click',function(){
+      document.querySelectorAll('#autoDiameterOptions .diameter-option').forEach(o=>o.classList.remove('active'));
+      this.classList.add('active');
+      const d = this.getAttribute('data-value');
+      document.getElementById('autoDiameter').value = d;
+      updateSpecsPanel('auto', parseFloat(d)); calculate();
+    });
+  });
+  document.querySelectorAll('#manualDiameterOptions .diameter-option').forEach(opt=>{
+    opt.addEventListener('click',function(){
+      document.querySelectorAll('#manualDiameterOptions .diameter-option').forEach(o=>o.classList.remove('active'));
+      this.classList.add('active');
+      const d = this.getAttribute('data-value');
+      document.getElementById('manualDiameter').value = d;
+      updateSpecsPanel('manual', parseFloat(d));
+      calculateAreaFromLength(); calculate();
+    });
+  });
+
+  ['autoSupplyTemp','autoReturnTemp','manualSupplyTemp','manualReturnTemp'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', function(){
+      updateDeltaDisplay();
+      if(id.startsWith('manual')) calculatePowerForCircle();
+      calculate();
+    });
+  });
+
+  function updateDeltaDisplay(){
+    const aS=parseFloat(document.getElementById('autoSupplyTemp').value);
+    const aR=parseFloat(document.getElementById('autoReturnTemp').value);
+    const aEl=document.getElementById('autoDeltaDisplay');
+    if(!isNaN(aS)&&!isNaN(aR)){ aEl.innerHTML=`ΔT = <strong>${(aS-aR).toFixed(1)} K</strong> · Tavg = <strong>${((aS+aR)/2).toFixed(1)} °C</strong>`; }
+    const mS=parseFloat(document.getElementById('manualSupplyTemp').value);
+    const mR=parseFloat(document.getElementById('manualReturnTemp').value);
+    const mEl=document.getElementById('manualDeltaDisplay');
+    if(!isNaN(mS)&&!isNaN(mR)){ mEl.innerHTML=`ΔT = <strong>${(mS-mR).toFixed(1)} K</strong> · Tavg = <strong>${((mS+mR)/2).toFixed(1)} °C</strong>`; }
+  }
+
+  document.getElementById('circleHoh').addEventListener('change', function(){
+    document.getElementById('customHohContainer').style.display = this.value==='custom'?'block':'none';
+    calculateAreaFromLength();
+  });
+  document.getElementById('circleLength').addEventListener('input', calculateAreaFromLength);
+  document.getElementById('customHoh').addEventListener('input', calculateAreaFromLength);
+  document.getElementById('circleArea').addEventListener('input', calculatePowerForCircle);
+
+  function getHohValue(){
+    const sel = document.getElementById('circleHoh').value;
+    if(sel==='custom') return parseFloat(document.getElementById('customHoh').value)||15;
+    return parseFloat(sel);
+  }
+
+  function getBasePowerRef(diameter, hoh){
+    const table = BASE_POWER[diameter]||BASE_POWER[10];
+    if(table[hoh]!==undefined) return table[hoh];
+    if(hoh<=10) return table[10]+(10-hoh)*4;
+    if(hoh>=18) return table[18]-(hoh-18)*4;
+    if(hoh<15){ const t2=(hoh-10)/5; return table[10]+t2*(table[15]-table[10]); }
+    const t2=(hoh-15)/3; return table[15]+t2*(table[18]-table[15]);
+  }
+  function tempCorrection(tGem){ return Math.max(0, (tGem-ROOM_TEMP)/(REF_TGEM-ROOM_TEMP)); }
+
+  function calculateAreaFromLength(){
+    const length = parseFloat(document.getElementById('circleLength').value);
+    if(!length||length<=0) return;
+    const hoh = getHohValue(); if(!hoh||hoh<=0) return;
+    document.getElementById('circleArea').value = (length*(hoh/100)).toFixed(2);
+    calculatePowerForCircle();
+  }
+  function calculatePowerForCircle(){
+    const area = parseFloat(document.getElementById('circleArea').value);
+    if(!area||area<=0) return;
+    const hoh=getHohValue();
+    const diameter=getManualDiameter();
+    const sup=parseFloat(document.getElementById('manualSupplyTemp').value);
+    const ret=parseFloat(document.getElementById('manualReturnTemp').value);
+    if(isNaN(sup)||isNaN(ret)) return;
+    const tGem=(sup+ret)/2;
+    const base=getBasePowerRef(diameter,hoh);
+    const power = area*base*tempCorrection(tGem);
+    document.getElementById('circlePower').value = Math.max(0, Math.round(power));
+  }
+
+  document.getElementById('addCircleBtn').addEventListener('click', addManualCircle);
+  document.getElementById('updateCircleBtn').addEventListener('click', updateManualCircle);
+  document.getElementById('cancelEditBtn').addEventListener('click', cancelEdit);
+
+  function validateLength(len){ return len>=MIN_LENGTH && len<=MAX_LENGTH; }
+
+  function addManualCircle(){
+    const name = document.getElementById('circleName').value.trim()||`Circuit ${manualCircles.length+1}`;
+    const length = parseFloat(document.getElementById('circleLength').value);
+    const area = parseFloat(document.getElementById('circleArea').value);
+    const power = parseFloat(document.getElementById('circlePower').value);
+    const hoh = getHohValue();
+    if(!validateLength(length)){ alert(`${MIN_LENGTH}–${MAX_LENGTH} m`); return; }
+    if(!area||area<=0){ alert('Area'); return; }
+    manualCircles.push({id:Date.now(),name,length,hoh,area,power:power||0});
+    renderCirclesList(); resetCircleForm(); calculate();
+  }
+  function updateManualCircle(){
+    if(editingCircleIndex<0) return;
+    const name = document.getElementById('circleName').value.trim()||`Circuit ${editingCircleIndex+1}`;
+    const length = parseFloat(document.getElementById('circleLength').value);
+    const area = parseFloat(document.getElementById('circleArea').value);
+    const power = parseFloat(document.getElementById('circlePower').value);
+    const hoh = getHohValue();
+    if(!validateLength(length)){ alert(`${MIN_LENGTH}–${MAX_LENGTH} m`); return; }
+    if(!area||area<=0){ alert('Area'); return; }
+    manualCircles[editingCircleIndex] = {id:manualCircles[editingCircleIndex].id,name,length,hoh,area,power:power||0};
+    renderCirclesList(); resetCircleForm(); calculate();
+  }
+  function cancelEdit(){
+    editingCircleIndex=-1;
+    document.getElementById('addCircleBtn').style.display='block';
+    document.getElementById('updateCircleBtn').style.display='none';
+    document.getElementById('cancelEditBtn').style.display='none';
+    resetCircleForm();
+  }
+  function resetCircleForm(){
+    document.getElementById('circleName').value = `Circuit ${manualCircles.length+1}`;
+    document.getElementById('circleLength').value='100';
+    document.getElementById('circleHoh').value='15';
+    document.getElementById('customHoh').value='15';
+    document.getElementById('customHohContainer').style.display='none';
+    calculateAreaFromLength();
+  }
+
+  function renderCirclesList(){
+    const list = document.getElementById('circlesList');
+    const empty = document.getElementById('emptyCirclesList');
+    if(manualCircles.length===0){ list.innerHTML=''; list.appendChild(empty); empty.style.display='block'; return; }
+    empty.style.display='none';
+    let html='';
+    manualCircles.forEach((c,i)=>{
+      const invalid = !validateLength(c.length);
+      html += `<div class="circle-item ${invalid?'invalid':''}">
+        <div class="circle-info">
+          <div class="circle-number">${c.name} <span class="badge ${invalid?'warn':'ok'}">${invalid?t('invalid'):t('ok')}</span></div>
+          <div class="circle-details">
+            <span><strong>${t('lengthM')}:</strong> ${c.length.toFixed(1)}</span>
+            <span><strong>${t('hohCm')}:</strong> ${c.hoh}</span>
+            <span><strong>${t('areaM2')}:</strong> ${c.area.toFixed(1)}</span>
+            <span><strong>${t('powerW')}:</strong> ${Math.round(c.power)}</span>
+          </div>
+        </div>
+        <div class="circle-actions">
+          <button class="action-btn edit-btn" onclick="editCircle(${i})" style="padding:8px 15px;font-size:14px">${t('updateCircuit')}</button>
+          <button class="action-btn delete-btn" onclick="deleteCircle(${i})" style="padding:8px 15px;font-size:14px">✕</button>
+        </div>
+      </div>`;
+    });
+    list.innerHTML = html;
+  }
+  window.editCircle = function(i){
+    const c = manualCircles[i];
+    document.getElementById('circleName').value = c.name;
+    document.getElementById('circleLength').value = c.length;
+    if([10,15,18].includes(c.hoh)){ document.getElementById('circleHoh').value=c.hoh.toString(); document.getElementById('customHohContainer').style.display='none'; }
+    else { document.getElementById('circleHoh').value='custom'; document.getElementById('customHoh').value=c.hoh; document.getElementById('customHohContainer').style.display='block'; }
+    document.getElementById('circleArea').value = c.area;
+    document.getElementById('circlePower').value = Math.round(c.power);
+    editingCircleIndex = i;
+    document.getElementById('addCircleBtn').style.display='none';
+    document.getElementById('updateCircleBtn').style.display='block';
+    document.getElementById('cancelEditBtn').style.display='block';
+  };
+  window.deleteCircle = function(i){
+    if(confirm('?')){ manualCircles.splice(i,1); renderCirclesList(); calculate(); }
+  };
+
+  document.getElementById('exportBtn').addEventListener('click', function(){
+    const config = {pipeDiameterMm:getCurrentDiameter(),circles:manualCircles,
+      supplyTemp:parseFloat(document.getElementById('manualSupplyTemp').value),
+      returnTemp:parseFloat(document.getElementById('manualReturnTemp').value),
+      timestamp:new Date().toISOString()};
+    const dataUri = 'data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(config,null,2));
+    const a = document.createElement('a'); a.href=dataUri; a.download=`floor_heating_${getCurrentDiameter()}mm.json`; a.click();
+  });
+  document.getElementById('importBtn').addEventListener('click', function(){
+    const inp = document.createElement('input'); inp.type='file'; inp.accept='.json';
+    inp.onchange = e=>{
+      const f=e.target.files[0]; const r=new FileReader();
+      r.onload = ev=>{ try{
+        const c = JSON.parse(ev.target.result);
+        if(c.circles&&Array.isArray(c.circles)){
+          manualCircles = c.circles;
+          if(c.supplyTemp) document.getElementById('manualSupplyTemp').value=c.supplyTemp;
+          if(c.returnTemp) document.getElementById('manualReturnTemp').value=c.returnTemp;
+          if(c.pipeDiameterMm&&PIPE_DATA[c.pipeDiameterMm]){
+            const d=String(c.pipeDiameterMm);
+            document.querySelectorAll('#manualDiameterOptions .diameter-option').forEach(o=>o.classList.remove('active'));
+            const el=document.querySelector(`#manualDiameterOptions .diameter-option[data-value="${d}"]`);
+            if(el) el.classList.add('active');
+            document.getElementById('manualDiameter').value=d;
+            updateSpecsPanel('manual', c.pipeDiameterMm);
+          }
+          updateDeltaDisplay(); renderCirclesList(); calculate(); alert('OK');
+        } else alert('Invalid');
+      } catch(err){ alert(err.message); } };
+      r.readAsText(f);
+    };
+    inp.click();
+  });
+
+  document.getElementById('calculateBtn').addEventListener('click', calculate);
+  document.getElementById('roomArea').addEventListener('input', calculate);
+  document.getElementById('pdfBtn').addEventListener('click', generatePdfReport);
+
+  function flowPerCircleLh(power, dT){ const cp=4186; if(!dT||dT<=0) return 0; const kg = power/(cp*dT); return kg/(WATER_DENSITY/1000)*3600; }
+  function pressureDropMbar(length, power, dT, diameter){
+    const dInner = PIPE_DATA[diameter].inner/1000;
+    const flowLh = flowPerCircleLh(power, dT);
+    const flowM3s = flowLh/3600000;
+    const areaM2 = Math.PI*Math.pow(dInner/2,2);
+    const v = flowM3s/areaM2;
+    if(v<=0) return 0;
+    const Re = (WATER_DENSITY*v*dInner)/WATER_VISCOSITY;
+    const f = Re<2300 ? 64/Re : 0.3164/Math.pow(Re,0.25);
+    const dpPa = f*(length/dInner)*(WATER_DENSITY*v*v/2);
+    return dpPa/100;
+  }
+  function setKwDisplay(w){ const kw=(w/1000).toFixed(2); document.getElementById('totalPowerKw').textContent=kw+' kW'; document.getElementById('totalPower').textContent=Math.round(w)+' W'; }
+
+  function calculate(){
+    const tab = document.querySelector('.tab-btn.active').getAttribute('data-tab');
+    if(tab==='auto') calculateAuto(); else calculateManual();
+  }
+
+  function calculateAuto(){
+    const roomArea = parseFloat(document.getElementById('roomArea').value);
+    const hoh = parseFloat(document.getElementById('hohDistance').value);
+    const diameter = getAutoDiameter();
+    const sup = parseFloat(document.getElementById('autoSupplyTemp').value);
+    const ret = parseFloat(document.getElementById('autoReturnTemp').value);
+    if(isNaN(sup)||isNaN(ret)||sup<=ret){ document.getElementById('pumpBox').innerHTML='<p style="color:#dc3545">Invalid regime</p>'; return; }
+    const dT = sup-ret, tGem = (sup+ret)/2;
+    const powerPerSqm = getBasePowerRef(diameter,hoh)*tempCorrection(tGem);
+    const totalPipeLength = roomArea*(100/hoh);
+    let numCircles = Math.max(1, Math.round(totalPipeLength/100));
+    while(totalPipeLength/numCircles>MAX_LENGTH) numCircles++;
+    while(numCircles>1 && totalPipeLength/numCircles<MIN_LENGTH) numCircles--;
+    const avgLength = totalPipeLength/numCircles;
+    const totalPower = roomArea*powerPerSqm;
+
+    setKwDisplay(totalPower);
+    document.getElementById('powerPerSqm').textContent = Math.round(powerPerSqm)+' W/m²';
+    document.getElementById('totalPipeLength').textContent = (Math.round(totalPipeLength*10)/10)+' m';
+    document.getElementById('numberOfCircles').textContent = `${numCircles} ${numCircles!==1?t('circuitsLabel'):t('circuitLabel')}`;
+    document.getElementById('avgLengthPerCircle').textContent = (Math.round(avgLength*10)/10)+' m';
+    document.getElementById('totalArea').textContent = roomArea.toFixed(1)+' m²';
+    document.getElementById('resSupplyReturn').textContent = `${sup} / ${ret} °C`;
+    document.getElementById('resDeltaT').textContent = dT.toFixed(1)+' K';
+    document.getElementById('resTgem').textContent = tGem.toFixed(1)+' °C';
+    document.getElementById('resDiameter').textContent = `${diameter} mm (${PIPE_DATA[diameter].label})`;
+
+    const details = document.getElementById('circlesDetails'); details.innerHTML='';
+    let maxDP=0, maxFlow=0, totalFlow=0;
+    const pdfCircles=[];
+
+    for(let i=1;i<=numCircles;i++){
+      const len = i===numCircles ? totalPipeLength-avgLength*(numCircles-1) : avgLength;
+      const area = roomArea/numCircles;
+      const power = area*powerPerSqm;
+      const dp = pressureDropMbar(len,power,dT,diameter);
+      const flow = flowPerCircleLh(power,dT);
+      maxDP=Math.max(maxDP,dp); maxFlow=Math.max(maxFlow,flow); totalFlow+=flow;
+      const invalid = len<MIN_LENGTH||len>MAX_LENGTH;
+      pdfCircles.push({name:`Circuit ${i}`,length:len,hoh,area,power,flow,dp,invalid});
+      details.innerHTML += `<div class="circle"><div class="circle-header"><div class="circle-title">Circuit ${i} <span class="badge ${invalid?'warn':'ok'}">${invalid?t('invalid'):t('ok')}</span></div><div class="circle-length ${invalid?'invalid':''}">${len.toFixed(1)} m</div></div>
+      <div class="circle-details">
+        <div><strong>${t('areaM2')}:</strong> ${area.toFixed(1)}</div>
+        <div><strong>${t('powerW')}:</strong> ${Math.round(power)}</div>
+        <div><strong>${t('hohCm')}:</strong> ${hoh}</div>
+        <div><strong>${t('flowLh')}:</strong> ${flow.toFixed(0)}</div>
+        <div><strong>${t('pressureMbar')}:</strong> ${dp.toFixed(0)}</div>
+        <div><strong>PE-RT:</strong> ${PIPE_DATA[diameter].label}</div>
+      </div></div>`;
+    }
+    document.getElementById('resTotalFlow').textContent = totalFlow.toFixed(0)+' l/h';
+    document.getElementById('resAvgFlow').textContent = (totalFlow/numCircles).toFixed(0)+' l/h';
+    updatePumpBox(maxDP, maxFlow, diameter);
+    lastCalculation = {mode:t('auto'),diameter,supply:sup,return:ret,deltaT:dT,tGem,numCircles,avgLength,totalPipeLength,totalArea:roomArea,powerPerSqm,totalPower,circles:pdfCircles,maxDP,maxFlow,totalFlow,warnings:[]};
+  }
+
+  function calculateManual(){
+    const diameter = getManualDiameter();
+    const sup = parseFloat(document.getElementById('manualSupplyTemp').value);
+    const ret = parseFloat(document.getElementById('manualReturnTemp').value);
+    document.getElementById('resDiameter').textContent = `${diameter} mm (${PIPE_DATA[diameter].label})`;
+    document.getElementById('resSupplyReturn').textContent = `${sup} / ${ret} °C`;
+    const dT = sup-ret, tGem=(sup+ret)/2;
+    document.getElementById('resDeltaT').textContent = dT.toFixed(1)+' K';
+    document.getElementById('resTgem').textContent = tGem.toFixed(1)+' °C';
+    if(isNaN(sup)||isNaN(ret)||sup<=ret){ document.getElementById('pumpBox').innerHTML='<p style="color:#dc3545">Invalid regime</p>'; return; }
+    if(manualCircles.length===0){
+      setKwDisplay(0);
+      ['powerPerSqm','totalPipeLength','avgLengthPerCircle','totalArea','resTotalFlow','resAvgFlow'].forEach(id=>document.getElementById(id).textContent='0');
+      document.getElementById('numberOfCircles').textContent = `0 ${t('circuitsLabel')}`;
+      document.getElementById('circlesDetails').innerHTML = `<p>${t('calcFirst')}</p>`;
+      document.getElementById('pumpBox').innerHTML = `<p>${t('calculateFirst')}</p>`;
+      lastCalculation=null; return;
+    }
+    manualCircles.forEach(c=>{ c.power = c.area*getBasePowerRef(diameter,c.hoh)*tempCorrection(tGem); });
+    renderCirclesList();
+    const totalPower = manualCircles.reduce((s,c)=>s+c.power,0);
+    const totalArea = manualCircles.reduce((s,c)=>s+c.area,0);
+    const totalLength = manualCircles.reduce((s,c)=>s+c.length,0);
+    const avgLen = totalLength/manualCircles.length;
+    const ppsq = totalArea>0?totalPower/totalArea:0;
+    setKwDisplay(totalPower);
+    document.getElementById('powerPerSqm').textContent = Math.round(ppsq)+' W/m²';
+    document.getElementById('totalPipeLength').textContent = (Math.round(totalLength*10)/10)+' m';
+    document.getElementById('numberOfCircles').textContent = `${manualCircles.length} ${manualCircles.length!==1?t('circuitsLabel'):t('circuitLabel')}`;
+    document.getElementById('avgLengthPerCircle').textContent = (Math.round(avgLen*10)/10)+' m';
+    document.getElementById('totalArea').textContent = totalArea.toFixed(1)+' m²';
+
+    const details = document.getElementById('circlesDetails'); details.innerHTML='';
+    let maxDP=0, maxFlow=0, totalFlow=0;
+    const pdfCircles=[]; const invalids=[];
+    manualCircles.forEach(c=>{
+      const dp = pressureDropMbar(c.length,c.power,dT,diameter);
+      const flow = flowPerCircleLh(c.power,dT);
+      maxDP=Math.max(maxDP,dp); maxFlow=Math.max(maxFlow,flow); totalFlow+=flow;
+      const invalid = !validateLength(c.length);
+      if(invalid) invalids.push(c.name);
+      pdfCircles.push({name:c.name,length:c.length,hoh:c.hoh,area:c.area,power:c.power,flow,dp,invalid});
+      details.innerHTML += `<div class="circle"><div class="circle-header"><div class="circle-title">${c.name} <span class="badge ${invalid?'warn':'ok'}">${invalid?t('invalid'):t('ok')}</span></div><div class="circle-length ${invalid?'invalid':''}">${c.length.toFixed(1)} m</div></div>
+      <div class="circle-details">
+        <div><strong>${t('areaM2')}:</strong> ${c.area.toFixed(1)}</div>
+        <div><strong>${t('powerW')}:</strong> ${Math.round(c.power)}</div>
+        <div><strong>${t('hohCm')}:</strong> ${c.hoh}</div>
+        <div><strong>${t('flowLh')}:</strong> ${flow.toFixed(0)}</div>
+        <div><strong>${t('pressureMbar')}:</strong> ${dp.toFixed(0)}</div>
+        <div><strong>PE-RT:</strong> ${PIPE_DATA[diameter].label}</div>
+      </div></div>`;
+    });
+    document.getElementById('resTotalFlow').textContent = totalFlow.toFixed(0)+' l/h';
+    document.getElementById('resAvgFlow').textContent = (totalFlow/manualCircles.length).toFixed(0)+' l/h';
+    updatePumpBox(maxDP,maxFlow,diameter);
+    lastCalculation = {mode:t('manual'),diameter,supply:sup,return:ret,deltaT:dT,tGem,numCircles:manualCircles.length,avgLength:avgLen,totalPipeLength:totalLength,totalArea,powerPerSqm:ppsq,totalPower,circles:pdfCircles,maxDP,maxFlow,totalFlow,warnings:invalids.length?[{danger:true,text:`${t('invalid')}: ${invalids.join(', ')}`}]:[]};
+  }
+
+  function updatePumpBox(maxDP, maxFlow, diameter){
+    const box = document.getElementById('pumpBox');
+    if(maxDP<=0){ box.innerHTML='<p>—</p>'; return; }
+    const headM = Math.max(2, Math.ceil(maxDP*0.0102+0.5));
+    let adv = '';
+    if(maxFlow<400) adv = 'Small electronically controlled circulator (constant pressure)';
+    else if(maxFlow<800) adv = 'Medium electronically controlled circulator (constant pressure)';
+    else adv = 'Larger electronically controlled circulator (constant pressure)';
+    if(currentLang==='nl'){
+      if(maxFlow<400) adv='Kleine elektronisch geregelde nateloper (constant-druk)';
+      else if(maxFlow<800) adv='Middelgrote elektronisch geregelde nateloper (constant-druk)';
+      else adv='Grotere elektronisch geregelde nateloper (constant-druk)';
+    } else if(currentLang==='zh'){
+      if(maxFlow<400) adv='小型电子控制循环泵（恒压模式）';
+      else if(maxFlow<800) adv='中型电子控制循环泵（恒压模式）';
+      else adv='大型电子控制循环泵（恒压模式）';
+    } else if(currentLang==='de'){
+      if(maxFlow<400) adv='Kleine elektronisch geregelte Umwälzpumpe (Konstantdruck)';
+      else if(maxFlow<800) adv='Mittlere elektronisch geregelte Umwälzpumpe (Konstantdruck)';
+      else adv='Größere elektronisch geregelte Umwälzpumpe (Konstantdruck)';
+    } else if(currentLang==='fr'){
+      if(maxFlow<400) adv='Petit circulateur électronique (pression constante)';
+      else if(maxFlow<800) adv='Circulateur électronique moyen (pression constante)';
+      else adv='Grand circulateur électronique (pression constante)';
+    }
+    box.innerHTML = `<h3>${t('pumpIndication')}</h3>
+      <div class="result-details">
+        <div class="detail-box"><div class="label">${t('pressureMbar')}</div><div class="value">${maxDP.toFixed(0)} mbar</div></div>
+        <div class="detail-box"><div class="label">${t('head')}</div><div class="value">${headM} m</div></div>
+        <div class="detail-box"><div class="label">${t('flowLh')}</div><div class="value">${maxFlow.toFixed(0)}</div></div>
+        <div class="detail-box"><div class="label">${t('pipeDiameterShort')}</div><div class="value">${diameter} mm</div></div>
+      </div>
+      <p style="margin-top:12px"><strong>${t('pumpType')}:</strong> ${adv}</p>
+      <p class="note">Darcy-Weisbach · inner ${PIPE_DATA[diameter].inner} mm</p>`;
+  }
+
+  function generatePdfReport(){
+    if(!lastCalculation){ alert(t('calculateFirst')); return; }
+    
+    const fieldMap = {
+      'installerName': 'pdfInstallerName',
+      'installerAddress': 'pdfInstallerAddress',
+      'installerCity': 'pdfInstallerCity',
+      'installerCountry': 'pdfInstallerCountry',
+      'customerName': 'pdfCustomerName',
+      'customerAddress': 'pdfCustomerAddress',
+      'customerCity': 'pdfCustomerCity',
+      'customerCountry': 'pdfCustomerCountry'
+    };
+    
+    for (const [inputId, pdfId] of Object.entries(fieldMap)) {
+      const inputEl = document.getElementById(inputId);
+      const pdfEl = document.getElementById(pdfId);
+      if (inputEl && pdfEl) {
+        const val = inputEl.value.trim();
+        pdfEl.textContent = val || '—';
+      }
+    }
+
+    alert("IMPORTANT FOR MICROSOFT STORE:\nTo hide the local URL in the printed PDF, please uncheck 'Headers and footers' (Kop- en voetteksten) in the print settings dialog.");
+    
+    const c = lastCalculation, d = PIPE_DATA[c.diameter];
+    const now = new Date();
+    const dateStr = now.toLocaleDateString()+' '+now.toLocaleTimeString();
+    document.getElementById('pdfMeta').textContent = `${dateStr} · ${c.mode} · PE-RT ${d.label} mm`;
+    document.getElementById('pdfDate').textContent = dateStr;
+    const kw = (c.totalPower/1000).toFixed(2);
+    document.getElementById('pdfKw').textContent = kw+' kW';
+    document.getElementById('pdfKwSub').textContent = `${Math.round(c.totalPower)} W · ${Math.round(c.powerPerSqm)} W/m² · ${c.totalArea.toFixed(1)} m²`;
+    document.getElementById('pdfDiameter').textContent = `${c.diameter} mm (${d.label}, inner ${d.inner} mm)`;
+    document.getElementById('pdfSupply').textContent = c.supply+' °C';
+    document.getElementById('pdfReturn').textContent = c.return+' °C';
+    document.getElementById('pdfDeltaT').textContent = c.deltaT.toFixed(1)+' K';
+    document.getElementById('pdfTgem').textContent = c.tGem.toFixed(1)+' °C';
+    document.getElementById('pdfMode').textContent = c.mode;
+    document.getElementById('pdfNumCircles').textContent = c.numCircles;
+    document.getElementById('pdfTotalLength').textContent = (Math.round(c.totalPipeLength*10)/10)+' m';
+    document.getElementById('pdfAvgLength').textContent = (Math.round(c.avgLength*10)/10)+' m';
+    document.getElementById('pdfTotalArea').textContent = c.totalArea.toFixed(1)+' m²';
+    document.getElementById('pdfPowerPerSqm').textContent = Math.round(c.powerPerSqm)+' W/m²';
+    document.getElementById('pdfTotalFlow').textContent = c.totalFlow.toFixed(0)+' l/h';
+    document.getElementById('pdfBendRadius').textContent = `5 × ${d.bendRadiusCm} cm`;
+    document.getElementById('pdfCertifications').textContent = d.certified?'KOMO + SKZ':'—';
+    
+    const tbody = document.getElementById('pdfCirclesBody'); tbody.innerHTML='';
+    c.circles.forEach((cc,i)=>{
+      tbody.innerHTML += `<tr><td>${i+1}</td><td>${cc.name}</td><td class="num">${cc.length.toFixed(1)}</td><td class="num">${cc.hoh}</td><td class="num">${cc.area.toFixed(1)}</td><td class="num">${Math.round(cc.power)}</td><td class="num">${cc.flow.toFixed(0)}</td><td class="num">${cc.dp.toFixed(0)}</td><td>${cc.invalid?'<span class="pdf-badge warn">'+t('invalid')+'</span>':'<span class="pdf-badge">'+t('ok')+'</span>'}</td></tr>`;
+    });
+    
+    const pbox = document.getElementById('pdfPumpBox');
+    if(c.maxDP>0){
+      const headM = Math.max(2, Math.ceil(c.maxDP*0.0102+0.5));
+      let adv='';
+      if(currentLang==='nl') adv=c.maxFlow<400?'Kleine nateloper (constant-druk)':c.maxFlow<800?'Middelgrote nateloper (constant-druk)':'Grotere nateloper (constant-druk)';
+      else if(currentLang==='zh') adv=c.maxFlow<400?'小型循环泵（恒压）':c.maxFlow<800?'中型循环泵（恒压）':'大型循环泵（恒压）';
+      else adv=c.maxFlow<400?'Small circulator (constant pressure)':c.maxFlow<800?'Medium circulator (constant pressure)':'Larger circulator (constant pressure)';
+      pbox.innerHTML = `<h2>${t('pumpIndication')}</h2>
+        <table class="pdf-summary">
+          <tr><td>${t('pipeDiameterShort')}</td><td>${c.diameter} mm</td></tr>
+          <tr><td>${t('pressureMbar')}</td><td>${c.maxDP.toFixed(0)} mbar</td></tr>
+          <tr><td>${t('head')}</td><td>${headM} m</td></tr>
+          <tr><td>${t('flowLh')}</td><td>${c.maxFlow.toFixed(0)}</td></tr>
+          <tr><td>${t('totalFlow')}</td><td>${c.totalFlow.toFixed(0)} l/h</td></tr>
+          <tr><td>${t('pumpType')}</td><td>${adv}</td></tr>
+        </table>`;
+    } else pbox.innerHTML='<h2>'+t('pumpIndication')+'</h2><p>—</p>';
+    
+    const wbox = document.getElementById('pdfWarnings'); wbox.innerHTML='';
+    (c.warnings||[]).forEach(w=>{ wbox.innerHTML += `<div class="pdf-warning ${w.danger?'danger':''}">${w.text}</div>`; });
+    
+    setTimeout(() => {
+        window.print();
+    }, 250);
+  }
+
+  document.getElementById('langSwitcher').value = currentLang;
+  document.documentElement.lang = currentLang;
+  applyTranslations();
+  updateDeltaDisplay();
+  calculateAreaFromLength();
+  calculate();
+});
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(reg => console.log('SW:', reg.scope))
+        .catch(err => console.error('SW error:', err));
+    });
+  }
+</script>
+</body>
+</html>
